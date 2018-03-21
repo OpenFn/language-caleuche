@@ -32,7 +32,11 @@ export function execute(...operations) {
   const initialState = {
     references: [],
     data: null,
-    driver
+    driver,
+    By,
+    Key,
+    promise,
+    until
   }
 
   return state => {
@@ -48,6 +52,10 @@ function cleanupState(state) {
   // screenshot(state.driver, 'tmp/img/finalScreen.png')
   // state.driver.quit();
   delete state.driver;
+  delete state.By;
+  delete state.Key;
+  delete state.promise;
+  delete state.until;
   delete state.element;
   return state;
 }
