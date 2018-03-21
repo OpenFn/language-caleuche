@@ -14,9 +14,12 @@
     "lib/"
   ],
   "dependencies": {
-    "language-common": "github:openfn/language-common#v0.0.5",
-    "request": "^2.81.0",
-    "selenium-webdriver": "^4.0.0-alpha.1"
+    "chromedriver": "^2.37.0",
+    "geckodriver": "^1.11.0",
+    "language-common": "github:openfn/language-common#v0.3.0",
+    "opencv": "^6.0.0",
+    "request": "^2.85.0",
+    "selenium-webdriver": "^3.6.0"
   },
   "devDependencies": {
     "assertion-error": "^1.0.1",
