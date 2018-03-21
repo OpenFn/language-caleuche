@@ -86,7 +86,7 @@ export function url(url) {
 
 export function elementById(id, timeout) {
   return state => {
-    return state.driver.wait(until.elementLocated(By.id(id)), 15 * 1000).then((element) => {
+    return state.driver.wait(until.elementLocated(By.id(id)), 25 * 1000).then((element) => {
       return {
         ...state,
         element,
