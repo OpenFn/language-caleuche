@@ -7,6 +7,7 @@ import {writeFile} from 'fs';
 import {promisify} from 'util';
 import {Builder, By, Key, promise, until} from 'selenium-webdriver';
 import firefox from 'selenium-webdriver/firefox';
+import promiseRetry from 'promise-retry';
 
 /**
  * Execute a sequence of operations.
@@ -42,7 +43,8 @@ export function execute(...operations) {
 }
 
 function cleanupState(state) {
-  state.driver.quit();
+  // screenshot(state.driver, 'tmp/img/finalScreen.png')
+  // state.driver.quit();
   delete state.driver;
   delete state.element;
   return state;
@@ -90,34 +92,27 @@ export function elementClick() {
   }
 }
 
-function createPromise(tries, willFail, driver, image) {
-  return new Promise(function cb(resolve, reject) {
-    screenshot(driver)
-    const coords = find(image);
-    if (--tries > 0) {
-      setTimeout(function() {
-        cb(resolve, reject);
-      }, 500);
-    } else {
-      if (willFail) {
-        reject('Failed to find Waldo.');
-      } else {
-        resolve(coords);
-      }
-    }
-  });
-}
-
 export function imageClick(needle) {
   return state => {
 
+    return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+      console.log('attempt number', number);
       return state.driver.takeScreenshot().then((haystack, err) => {
         return findInImage(getPath(state, needle), haystack)
+        .catch(retry)
       })
-      .then((data) => {
-        const nextState = composeNextState(state, data)
-        return state;
-      })
+    })
+    .then((targetPos) => {
+      console.log(targetPos);
+      state.driver.actions()
+        .mouseMove(state.element, targetPos)
+        .click()
+        .perform()
+    })
+    .then((data) => {
+      const nextState = composeNextState(state, data)
+      return state;
+    })
 
   }
 }

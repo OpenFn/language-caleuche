@@ -3,20 +3,11 @@ import cv from 'opencv4nodejs';
 export function findInImage(waldo, scene) {
   return new Promise((resolve, reject) => {
 
-    console.log("OpenCV...");
-
     const needle = cv.imread(waldo);
     cv.imwrite('tmp/img/1.png', needle);
 
-    // Represent image a Mat...
-    // const base64text='data:image/png;base64,R0lGO..';//Base64 encoded string
-    // const base64data =base64text.replace('data:image/jpeg;base64','')
-    //                             .replace('data:image/png;base64','');//Strip image type prefix
     const buffer = Buffer.from(scene,'base64');
     const haystack = cv.imdecode(buffer);
-
-    // const haystack = cv.imread(scene);
-    // cv.imwrite('tmp/img/2.png', haystack);
 
     // Match template (the brightest locations indicate the highest match)
     const matched = haystack.matchTemplate(needle, 5);
@@ -36,10 +27,16 @@ export function findInImage(waldo, scene) {
     cv.imwrite('tmp/img/wheres_waldo.png', haystack);
 
     console.log(minMax);
+    const target = {
+      y: (minMax.maxLoc.y + needle.rows/2),
+      x: (minMax.maxLoc.x + needle.cols/2)
+    };
+    console.log(target);
+
     if (minMax.maxVal > 0.85) {
-      resolve(minMax.maxLoc);
+      resolve(target);
     } else {
-      reject("not strong enough.")
+      reject("Not strong enough.")
     }
 
   })
