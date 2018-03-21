@@ -25,7 +25,9 @@ export function execute(...operations) {
 
   require('chromedriver');
   var webdriver = require('selenium-webdriver');
-  var driver = new webdriver.Builder().forBrowser('chrome').build();
+  var driver = new webdriver.Builder()
+    .forBrowser('chrome')
+    .build();
 
   const initialState = {
     references: [],
@@ -48,6 +50,21 @@ function cleanupState(state) {
   delete state.driver;
   delete state.element;
   return state;
+}
+
+/**
+ * Runs a function using state.
+ * @public
+ * @example
+ *  alterState(callback)
+ * @function
+ * @param {Function} func is the function
+ * @returns {<Operation>}
+ */
+export function driver(func) {
+ return state => {
+   return func(state)
+ }
 }
 
 export function url(url) {
@@ -92,7 +109,33 @@ export function elementClick() {
   }
 }
 
+// TODO: Refactor into a single function with click options ====================
 export function imageClick(needle) {
+  return state => {
+
+    return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+      console.log('attempt number', number);
+      return state.driver.takeScreenshot().then((haystack, err) => {
+        return findInImage(getPath(state, needle), haystack)
+        .catch(retry)
+      })
+    })
+    .then((targetPos) => {
+      // console.log(targetPos);
+      state.driver.actions()
+        .mouseMove(state.element, targetPos)
+        .click()
+        .perform()
+    })
+    .then((data) => {
+      const nextState = composeNextState(state, data)
+      return state;
+    })
+
+  }
+}
+
+export function imageDoubleClick(needle) {
   return state => {
 
     return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
@@ -107,6 +150,7 @@ export function imageClick(needle) {
       state.driver.actions()
         .mouseMove(state.element, targetPos)
         .click()
+        .doubleClick()
         .perform()
     })
     .then((data) => {
@@ -116,6 +160,7 @@ export function imageClick(needle) {
 
   }
 }
+// =============================================================================
 
 // TODO: implement integer wait...
 // export function wait(timeout) {
