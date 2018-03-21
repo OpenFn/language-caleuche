@@ -25,8 +25,13 @@ export function execute(...operations) {
 
   require('chromedriver');
   var webdriver = require('selenium-webdriver');
+  const chromeCapabilities = webdriver.Capabilities.chrome();
+    chromeCapabilities.set('chromeOptions', {
+      'args': ['--headless']
+    });
   var driver = new webdriver.Builder()
     .forBrowser('chrome')
+    .withCapabilities(chromeCapabilities)
     .build();
 
   const initialState = {
@@ -50,7 +55,7 @@ export function execute(...operations) {
 
 function cleanupState(state) {
   // screenshot(state.driver, 'tmp/img/finalScreen.png')
-  // state.driver.quit();
+  state.driver.quit();
   delete state.driver;
   delete state.By;
   delete state.Key;
@@ -157,7 +162,6 @@ export function imageDoubleClick(needle) {
       console.log(targetPos);
       state.driver.actions()
         .mouseMove(state.element, targetPos)
-        .click()
         .doubleClick()
         .perform()
     })
@@ -170,17 +174,28 @@ export function imageDoubleClick(needle) {
 }
 // =============================================================================
 
-// TODO: implement integer wait...
-// export function wait(timeout) {
-//   return state => {
-//     return setTimeout(function() {
-//       console.log("hi mom")
-//     }, 1500).then((data) => {
-//       const nextState = composeNextState(state, data)
-//       return state;
-//     })
-//   }
-// }
+export function wait(image) {
+  return state => {
+    return promiseRetry({ factor: 1, maxTimeout: 2000 }, (retry, number) => {
+      console.log('attempt number', number);
+      return state.driver
+        .findInImage(getPath(state, needle), haystack)
+        .catch(retry)
+    })
+    .then((data) => {
+      const nextState = composeNextState(state, data)
+      return state;
+    })
+  }
+}
+
+export function ocr(image, x, y, X, Y) {
+  return state => {
+    console.log(getPath(state, image))
+    readText(getPath(state, image))
+    return state;
+  }
+}
 
 // export function find(image) {
 //   return state => {
