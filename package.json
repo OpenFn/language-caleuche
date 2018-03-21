@@ -1,7 +1,7 @@
 {
-  "name": "language-selenium",
+  "name": "language-caleuche",
   "version": "1.0.0",
-  "description": "A selenium language-package for OpenFn",
+  "description": "A mythical ghost ship controlled by Millalobo",
   "main": "lib/index.js",
   "scripts": {
     "build": "make",
