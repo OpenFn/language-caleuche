@@ -15,6 +15,7 @@
   ],
   "dependencies": {
     "@google-cloud/vision": "^0.17.0",
+    "chromedriver": "^2.37.0",
     "language-common": "github:openfn/language-common#v0.3.0",
     "promise-retry": "^1.1.1",
     "request": "^2.81.0",

@@ -26,17 +26,15 @@ export function findInImage(waldo, scene) {
     );
     cv.imwrite('tmp/img/wheres_waldo.png', haystack);
 
-    console.log(minMax);
     const target = {
       y: (minMax.maxLoc.y + needle.rows/2),
       x: (minMax.maxLoc.x + needle.cols/2)
     };
-    console.log(target);
 
     if (minMax.maxVal > 0.85) {
-      resolve(target);
+      resolve({target, minMax});
     } else {
-      reject("Not strong enough.")
+      reject("No match found: " + JSON.stringify(minMax))
     }
 
   })
