@@ -140,11 +140,11 @@ export function imageClick(type, needle) {
     })
     .then(({ target, minMax }) => {
       console.log("Match Found: " + JSON.stringify(minMax));
-      // if (type == 'double') {
+      if (type == 'double') {
         return doubleClick(state, target)
-      // } else {
-        // return singleClick(state, target)
-      // }
+      } else {
+        return singleClick(state, target)
+      }
     })
     .then((data) => {
       return composeNextState(state, data)
