@@ -11,3 +11,17 @@ export function screenshot(driver, output) {
     }
   );
 }
+
+export function singleClick(state, target) {
+  return state.driver.actions()
+    .mouseMove(state.element, target)
+    .click()
+    .perform()
+}
+
+export function doubleClick(state, target) {
+  return state.driver.actions()
+    .mouseMove(state.element, target)
+    .doubleClick()
+    .perform()
+}

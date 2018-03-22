@@ -2,7 +2,7 @@
 import {execute as commonExecute, expandReferences, composeNextState} from 'language-common';
 import {findInImage} from './OpenCV';
 import {readText} from './OCR'
-import {screenshot, getPath} from './Utils';
+import {screenshot, getPath, singleClick, doubleClick} from './Utils';
 import {writeFile} from 'fs';
 import {promisify} from 'util';
 import {Builder, By, Key, promise, until} from 'selenium-webdriver';
@@ -142,10 +142,11 @@ export function imageClick(type, needle) {
       console.log("Match Found: " + JSON.stringify(minMax));
       console.log(state.element);
       console.log(target);
-      return state.driver.actions()
-        .mouseMove(state.element, target)
-        .click()
-        .perform()
+      if (type == 'double') {
+        return doubleClick(state, target)
+      } else {
+        return singleClick(state, target)
+      }
     })
     .then((data) => {
       return composeNextState(state, data)
