@@ -7,7 +7,6 @@ import {writeFile} from 'fs';
 import {promisify} from 'util';
 import {Builder, By, Key, promise, until} from 'selenium-webdriver';
 import firefox from 'selenium-webdriver/firefox';
-import chrome from 'selenium-webdriver/chrome';
 import promiseRetry from 'promise-retry';
 
 /**
@@ -32,20 +31,12 @@ export function execute(...operations) {
   const chromeCapabilities = webdriver.Capabilities.chrome();
   chromeCapabilities
   .set('chromeOptions', {
-    // 'args': ['--headless']
+    'args': ['--headless']
   })
   .set('acceptInsecureCerts', true)
 
-  // const firefoxCapabilities = webdriver.Capabilities.firefox();
-  // firefoxCapabilities
-  // .set('acceptInsecureCerts', true)
-
   const driver = new webdriver.Builder()
-    // .forBrowser('firefox')
-    // .setFirefoxOptions(new firefox.Options().headless())
-    // .withCapabilities(firefoxCapabilities)
     .forBrowser('chrome')
-    // .setChromeOptions(new chrome.Options().headless())
     .withCapabilities(chromeCapabilities)
     .build();
 
@@ -83,7 +74,7 @@ function cleanupState(state) {
   return state;
 }
 
-/** ============================================================================
+/**
  * Runs a function with access to state and the webdriver.
  * @public
  * @example
@@ -92,13 +83,11 @@ function cleanupState(state) {
  * @param {Function} func is the function
  * @returns {<Operation>}
  */
-// TODO: fix this...
 export function driver(func) {
   return state => {
     return func(state)
   }
 }
-// =============================================================================
 
 export function url(url) {
   return state => {
@@ -131,13 +120,6 @@ export function type(text) {
   }
 }
 
-export function press(key) {
-  return state => {
-    return state.element.sendKeys(Key.RETURN).then((data) => {
-      return composeNextState(state, data)
-    })
-  }
-}
 
 export function elementClick() {
   return state => {
@@ -152,12 +134,18 @@ export function imageClick(type, needle) {
     return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
       return state.driver.takeScreenshot().then((haystack, err) => {
         return findInImage(getPath(state, needle), haystack)
+        .then()
         .catch(retry)
       })
     })
     .then(({targetPos, minMax}) => {
       console.log("Match Found: " + JSON.stringify(minMax));
-      doubleClick(state, targetPos)
+      console.log(state.element);
+      console.log(targetPos);
+      return state.driver.actions()
+        .mouseMove(state.element, targetPos)
+        .click()
+        .perform()
     })
     .then((data) => {
       return composeNextState(state, data)
@@ -165,54 +153,33 @@ export function imageClick(type, needle) {
   }
 }
 
-function singleClick(state, target) {
-  console.log("in the d-click function");
-  return state.driver.actions()
-    .mouseMove(state.element, targetPos)
-    .click()
-    .perform()
-}
+// export function press(key) {
+//   return state => {
+//     return state.element.sendKeys(Key.RETURN).then((data) => {
+//       return composeNextState(state, data)
+//     })
+//   }
+// }
 
-function doubleClick(state, target) {
-  console.log("in the d-click function");
-  return state.driver.actions()
-    .mouseMove(state.element, targetPos)
-    .doubleClick()
-    .perform()
-}
-
-export function wait(needle) {
-  return state => {
-    return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
-      return state.driver.takeScreenshot().then((haystack, err) => {
-        return findInImage(getPath(state, needle), haystack)
-        .catch(retry)
-      })
-    })
-    .then((data) => {
-      return composeNextState(state, data)
-    })
-  }
-}
+// export function wait(needle) {
+//   return state => {
+//     return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+//       return state.driver.takeScreenshot().then((haystack, err) => {
+//         return findInImage(getPath(state, needle), haystack)
+//         .catch(retry)
+//       })
+//     })
+//     .then((data) => {
+//       return composeNextState(state, data)
+//     })
+//   }
+// }
 
 export function ocr(image, x, y, X, Y) {
   return state => {
     console.log(getPath(state, image))
     readText(getPath(state, image))
     return composeNextState(state, data)
-  }
-}
-
-export function doubleClick(element, location) {
-  return state => {
-    const act = new Actions(state.driver)
-    return (
-      elem
-      ? act.moveToElement(element).moveByOffset(10, 20).doubleClick().perform()
-      : state.element.doubleClick()
-    ).then((data) => {
-      return composeNextState(state, data)
-    })
   }
 }
 
