@@ -31,7 +31,7 @@ export function execute(...operations) {
   const chromeCapabilities = webdriver.Capabilities.chrome();
   chromeCapabilities
   .set('chromeOptions', {
-    'args': ['--headless']
+    // 'args': ['--headless']
   })
   .set('acceptInsecureCerts', true)
 
@@ -132,18 +132,18 @@ export function elementClick() {
 export function imageClick(type, needle) {
   return state => {
     return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+      console.log("try number " + number);
       return state.driver.takeScreenshot().then((haystack, err) => {
         return findInImage(getPath(state, needle), haystack)
-        .then()
         .catch(retry)
       })
     })
-    .then(({targetPos, minMax}) => {
+    .then(({ target, minMax }) => {
       console.log("Match Found: " + JSON.stringify(minMax));
       console.log(state.element);
-      console.log(targetPos);
+      console.log(target);
       return state.driver.actions()
-        .mouseMove(state.element, targetPos)
+        .mouseMove(state.element, target)
         .click()
         .perform()
     })
