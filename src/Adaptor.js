@@ -61,7 +61,7 @@ export function execute(...operations) {
 function cleanupState(state) {
   if (state.driver) {
     screenshot(state.driver, 'tmp/img/finalScreen.png')
-    // state.driver.quit();
+    state.driver.quit();
     delete state.driver;
   }
   delete state.By;
@@ -160,20 +160,6 @@ export function imageClick(type, needle) {
 // export function press(key) {
 //   return state => {
 //     return state.element.sendKeys(Key.RETURN).then((data) => {
-//       return composeNextState(state, data)
-//     })
-//   }
-// }
-
-// export function wait(needle) {
-//   return state => {
-//     return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
-//       return state.driver.takeScreenshot().then((haystack, err) => {
-//         return findInImage(getPath(state, needle), haystack)
-//         .catch(retry)
-//       })
-//     })
-//     .then((data) => {
 //       return composeNextState(state, data)
 //     })
 //   }
