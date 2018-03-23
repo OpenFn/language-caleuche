@@ -31,7 +31,7 @@ export function execute(...operations) {
   const chromeCapabilities = webdriver.Capabilities.chrome();
   chromeCapabilities
   .set('chromeOptions', {
-    // 'args': ['--headless']
+    'args': ['--headless']
   })
   .set('acceptInsecureCerts', true)
 
