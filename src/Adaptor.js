@@ -89,14 +89,11 @@ export function driver(func) {
 
 export function conditional(test, funTrue, funFalse) {
   return state => {
-    console.log("starting test...");
     return test(state)
     .then(() => {
-      console.log("it was true...");
       return funTrue(state)
     })
     .catch(() => {
-      console.log("it was false...");
       if (funFalse) {
         return funFalse(state)
       } else {
@@ -130,14 +127,6 @@ export function elementById(id, timeout) {
 export function type(text) {
   return state => {
     return state.element.sendKeys(text)
-    .then(() => { return state })
-  }
-}
-
-
-export function elementClick() {
-  return state => {
-    return state.element.click()
     .then(() => { return state })
   }
 }
