@@ -154,24 +154,32 @@ export function visible(needle) {
   }
 }
 
-export function imageClick(type, needle) {
+export function click(type, needle) {
   return state => {
-    return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
-      console.log(`trying ${needle}: ${number}`);
-      return state.driver.takeScreenshot().then((haystack, err) => {
-        return findInImage(getPath(state, needle), haystack)
-        .catch(retry)
+    if (!needle) {
+      return state.element.click()
+      .then(() => {
+        return ( type == 'double' ? state.element.click() : null )
       })
-    })
-    .then(({ target, minMax }) => {
-      console.log("Match Found: " + JSON.stringify(minMax));
-      if (type == 'double') {
-        return doubleClick(state, target)
-      } else {
-        return singleClick(state, target)
-      }
-    })
-    .then(() => { return state })
+      .then(() => { return state })
+    } else {
+      return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+        console.log(`trying ${needle}: ${number}`);
+        return state.driver.takeScreenshot().then((haystack, err) => {
+          return findInImage(getPath(state, needle), haystack)
+          .catch(retry)
+        })
+      })
+      .then(({ target, minMax }) => {
+        console.log("Match Found: " + JSON.stringify(minMax));
+        if (type == 'double') {
+          return doubleClick(state, target)
+        } else {
+          return singleClick(state, target)
+        }
+      })
+      .then(() => { return state })
+    }
   }
 }
 
