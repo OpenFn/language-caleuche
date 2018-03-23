@@ -133,13 +133,36 @@ export function type(text) {
 
 export function visible(needle) {
   return state => {
-    return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
-      console.log(`trying ${needle}: ${number}`);
-      return state.driver.takeScreenshot().then((haystack, err) => {
-        return findInImage(getPath(state, needle), haystack)
-        .catch(retry)
+    // needle = [1,2,3];
+    if (Array.isArray(needle)) {
+      // handle a bunch of possible images...
+      return new Promise(function(resolve, reject) {
+        needle.some((img) => {
+          // this returns the target if it finds.
+          // and it errors out if it doesn't find.
+          return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+            console.log(`trying ${needle}: ${number}`);
+            return state.driver.takeScreenshot().then((haystack, err) => {
+              return findInImage(getPath(state, needle), haystack)
+              .catch(retry)
+            })
+          })
+        }) // returns true as soon as ANY of these are found.
+        // returns false if none.
+      });
+
+    } else {
+
+      return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+        console.log(`trying ${needle}: ${number}`);
+        return state.driver.takeScreenshot().then((haystack, err) => {
+          return findInImage(getPath(state, needle), haystack)
+          .catch(retry)
+        })
       })
-    })
+
+    }
+
   }
 }
 
