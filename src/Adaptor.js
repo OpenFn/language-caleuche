@@ -154,15 +154,29 @@ export function visible(needle) {
   }
 }
 
+/**
+ * clicks on an element or a location offset within an element/canvas
+ * @public
+ * @example
+ *  click('single', 'happy_face.png')
+ * @function
+ * @param {type} type is either 'single' or 'double'
+ * @param {needle} needle is the image to search for on the screen/canvas
+ * @returns {<Operation>}
+ */
 export function click(type, needle) {
   return state => {
+
     if (!needle) {
+
       return state.element.click()
       .then(() => {
         return ( type == 'double' ? state.element.click() : null )
       })
       .then(() => { return state })
+
     } else {
+
       return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
         console.log(`trying ${needle}: ${number}`);
         return state.driver.takeScreenshot().then((haystack, err) => {
@@ -179,6 +193,7 @@ export function click(type, needle) {
         }
       })
       .then(() => { return state })
+
     }
   }
 }
