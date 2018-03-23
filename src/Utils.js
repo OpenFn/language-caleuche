@@ -3,13 +3,10 @@ export function getPath(state, image) {
 };
 
 export function screenshot(driver, output) {
-  driver.takeScreenshot().then(
-    function(image, err) {
-      require('fs').writeFile(output, image, 'base64', function(err) {
-        console.log(err);
-      });
-    }
-  );
+  driver.takeScreenshot()
+  .then((image) => {
+    require('fs').writeFile(output, image, 'base64')
+  });
 }
 
 export function singleClick(state, target) {
@@ -18,7 +15,6 @@ export function singleClick(state, target) {
     .click()
     .perform()
 }
-
 
 export function doubleClick(state, target) {
   state.driver.actions()

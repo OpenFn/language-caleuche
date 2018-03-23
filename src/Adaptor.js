@@ -29,7 +29,7 @@ export function execute(...operations) {
   const chromeCapabilities = webdriver.Capabilities.chrome();
   chromeCapabilities
   .set('chromeOptions', {
-    'args': ['--headless']
+    // 'args': ['--headless']
   })
   .set('acceptInsecureCerts', true)
 
@@ -61,7 +61,7 @@ export function execute(...operations) {
 function cleanupState(state) {
   if (state.driver) {
     screenshot(state.driver, 'tmp/img/finalScreen.png')
-    state.driver.quit();
+    // state.driver.quit();
     delete state.driver;
   }
   delete state.By;
@@ -83,54 +83,43 @@ function cleanupState(state) {
  */
 export function driver(func) {
   return state => {
-    return func(state)
+    return func(state);
   }
 }
 
 export function wait(ms) {
   return state => {
     return new Promise(resolve => setTimeout(() => resolve(state), ms))
-    .then((data) => { return state; } );
+    .then(() => { return state });
   }
 }
 
 export function url(url) {
   return state => {
-    return state.driver.get(url).then((data) => {
-      return composeNextState(state, data)
-    })
+    return state.driver.get(url)
+    .then(() => { return state })
   }
 }
 
 export function elementById(id, timeout) {
   return state => {
-    return state.driver.wait(until.elementLocated(By.id(id)), 25 * 1000).then((element) => {
-      return {
-        ...state,
-        element,
-        references: [
-          ...state.references,
-          state.data
-        ]
-      }
-    })
+    return state.driver.wait(until.elementLocated(By.id(id)), 25 * 1000)
+    .then((element) => { return { ...state, element } })
   }
 }
 
 export function type(text) {
   return state => {
-    return state.element.sendKeys(text).then((data) => {
-      return composeNextState(state, data)
-    })
+    return state.element.sendKeys(text)
+    .then(() => { return state })
   }
 }
 
 
 export function elementClick() {
   return state => {
-    return state.element.click().then((data) => {
-      return composeNextState(state, data)
-    })
+    return state.element.click()
+    .then(() => { return state })
   }
 }
 
@@ -151,24 +140,14 @@ export function imageClick(type, needle) {
         return singleClick(state, target)
       }
     })
-    .then((data) => {
-      return composeNextState(state, data)
-    })
+    .then(() => { return state })
   }
 }
 
-// export function press(key) {
-//   return state => {
-//     return state.element.sendKeys(Key.RETURN).then((data) => {
-//       return composeNextState(state, data)
-//     })
-//   }
-// }
-
 export function ocr(image, x, y, X, Y) {
   return state => {
-    console.log(getPath(state, image))
     readText(getPath(state, image))
+    // TODO: allow user to set key:value in nextState for data from OCR
     return composeNextState(state, data)
   }
 }
