@@ -27,8 +27,8 @@ export function findInImage(waldo, scene) {
     cv.imwrite('tmp/img/wheres_waldo.png', haystack);
 
     const target = {
-      y: (minMax.maxLoc.y + needle.rows/2),
-      x: (minMax.maxLoc.x + needle.cols/2)
+      y: (Math.floor(minMax.maxLoc.y + needle.rows/2)),
+      x: (Math.floor(minMax.maxLoc.x + needle.cols/2))
     };
 
     if (minMax.maxVal > 0.85) {

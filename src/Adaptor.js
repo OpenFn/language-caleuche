@@ -89,6 +89,13 @@ export function driver(func) {
   }
 }
 
+export function wait(ms) {
+  return state => {
+    return new Promise(resolve => setTimeout(() => resolve(state), ms))
+    .then((data) => { return state; } );
+  }
+}
+
 export function url(url) {
   return state => {
     return state.driver.get(url).then((data) => {
