@@ -1,11 +1,11 @@
 /** @module Adaptor */
-import {execute as commonExecute, expandReferences, composeNextState} from 'language-common';
-import {findInImage} from './OpenCV';
-import {readText} from './OCR'
-import {screenshot, getPath, singleClick, doubleClick} from './Utils';
-import {writeFile} from 'fs';
-import {promisify} from 'util';
-import {Builder, By, Key, promise, until} from 'selenium-webdriver';
+import { execute as commonExecute, expandReferences, composeNextState } from 'language-common';
+import { findInImage } from './OpenCV';
+import { readText } from './OCR'
+import { screenshot, getPath, offsetClick } from './Utils';
+import { writeFile } from 'fs';
+import { promisify } from 'util';
+import { Builder, By, Key, promise, until } from 'selenium-webdriver';
 import promiseRetry from 'promise-retry';
 
 /**
@@ -171,7 +171,7 @@ export function click(type, needle) {
 
       return state.element.click()
       .then(() => {
-        return ( type == 'double' ? state.element.click() : null )
+        return ( type == 'double' && state.element.click() )
       })
       .then(() => { return state })
 
@@ -186,11 +186,11 @@ export function click(type, needle) {
       })
       .then(({ target, minMax }) => {
         console.log("Match Found: " + JSON.stringify(minMax));
-        if (type == 'double') {
-          return doubleClick(state, target)
-        } else {
-          return singleClick(state, target)
-        }
+        offsetClick(state, target)
+        return target
+      })
+      .then((target) => {
+        return ( type == 'double' && offsetClick(state, target) )
       })
       .then(() => { return state })
 
