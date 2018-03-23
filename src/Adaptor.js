@@ -6,7 +6,6 @@ import {screenshot, getPath, singleClick, doubleClick} from './Utils';
 import {writeFile} from 'fs';
 import {promisify} from 'util';
 import {Builder, By, Key, promise, until} from 'selenium-webdriver';
-import firefox from 'selenium-webdriver/firefox';
 import promiseRetry from 'promise-retry';
 
 /**
@@ -24,7 +23,6 @@ import promiseRetry from 'promise-retry';
 export function execute(...operations) {
 
   require('chromedriver');
-  require('geckodriver');
 
   var webdriver = require('selenium-webdriver');
 
