@@ -61,7 +61,7 @@ export function execute(...operations) {
 function cleanupState(state) {
   if (state.driver) {
     screenshot(state.driver, 'tmp/img/finalScreen.png')
-    // state.driver.quit();
+    state.driver.quit();
     delete state.driver;
   }
   delete state.By;
@@ -84,6 +84,25 @@ function cleanupState(state) {
 export function driver(func) {
   return state => {
     return func(state);
+  }
+}
+
+export function conditional(test, funTrue, funFalse) {
+  return state => {
+    console.log("starting test...");
+    return test(state)
+    .then(() => {
+      console.log("it was true...");
+      return funTrue(state)
+    })
+    .catch(() => {
+      console.log("it was false...");
+      if (funFalse) {
+        return funFalse(state)
+      } else {
+        return state;
+      }
+    })
   }
 }
 
@@ -123,10 +142,22 @@ export function elementClick() {
   }
 }
 
+export function visible(needle) {
+  return state => {
+    return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+      console.log(`trying ${needle}: ${number}`);
+      return state.driver.takeScreenshot().then((haystack, err) => {
+        return findInImage(getPath(state, needle), haystack)
+        .catch(retry)
+      })
+    })
+  }
+}
+
 export function imageClick(type, needle) {
   return state => {
     return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
-      console.log("try number " + number);
+      console.log(`trying ${needle}: ${number}`);
       return state.driver.takeScreenshot().then((haystack, err) => {
         return findInImage(getPath(state, needle), haystack)
         .catch(retry)
