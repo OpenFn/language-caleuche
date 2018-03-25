@@ -1,20 +1,12 @@
-import fs from 'fs';
 import request from 'request'
 
-function base64_encode(file) {
-    var bitmap = fs.readFileSync(file);
-    return new Buffer(bitmap).toString('base64');
-}
-
-export function readText(imagePath, key) {
+export function readText(image, key) {
 
   const url = `https://vision.googleapis.com/v1/images:annotate?key=${key}`
 
-  console.log(imagePath);
-
   const json = {
     "requests": [{
-      "image": {"content": base64_encode(imagePath)},
+      "image": {"content": image},
       "features": [{"type": "TEXT_DETECTION"}]
     }]
   };

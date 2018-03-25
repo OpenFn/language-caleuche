@@ -1,3 +1,10 @@
+import { writeFile, readFileSync } from 'fs';
+
+export function base64_encode(file) {
+  var bitmap = readFileSync(file);
+  return new Buffer(bitmap).toString('base64');
+}
+
 export function getPath(state, image) {
   return `./${state.imageDir}/${image}`
 };
@@ -5,7 +12,7 @@ export function getPath(state, image) {
 export function screenshot(driver, output) {
   driver.takeScreenshot()
   .then((image) => {
-    require('fs').writeFile(output, image, 'base64')
+    writeFile(output, image, 'base64')
   });
 }
 

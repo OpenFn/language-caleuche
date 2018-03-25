@@ -3,15 +3,13 @@ import cv from 'opencv4nodejs';
 export function findInImage(waldo, scene) {
   return new Promise((resolve, reject) => {
 
-    const needle = cv.imread(waldo);
-    cv.imwrite('tmp/img/1.png', needle);
+    const needle = cv.imdecode(Buffer.from(waldo,'base64'));
+    const haystack = cv.imdecode(Buffer.from(scene,'base64'));
 
-    const buffer = Buffer.from(scene,'base64');
-    const haystack = cv.imdecode(buffer);
-
+    console.log(needle);
+    console.log(haystack);
     // Match template (the brightest locations indicate the highest match)
     const matched = haystack.matchTemplate(needle, 5);
-    cv.imwrite('tmp/img/matched.png', matched);
 
     // Use minMaxLoc to locate the highest value (or lower, depending of the type of matching method)
     const minMax = matched.minMaxLoc();
@@ -40,3 +38,10 @@ export function findInImage(waldo, scene) {
   })
 
 }
+
+export function cropImage(image, x, y, w, h) {
+  const mat = cv.imdecode(Buffer.from(image,'base64'));
+  const croppedImage = mat.getRegion(new cv.Rect(x, y, w, h));
+  cv.imwrite('tmp/img/cropped.png', croppedImage);
+  return cv.imencode('.png', croppedImage).toString('base64');
+};

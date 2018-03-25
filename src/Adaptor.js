@@ -1,9 +1,8 @@
 /** @module Adaptor */
 import { execute as commonExecute, expandReferences, composeNextState } from 'language-common';
-import { findInImage } from './OpenCV';
+import { findInImage, cropImage } from './OpenCV';
 import { readText } from './OCR'
-import { screenshot, getPath, offsetClick } from './Utils';
-import { writeFile } from 'fs';
+import { screenshot, getPath, offsetClick, base64_encode } from './Utils';
 import { promisify } from 'util';
 import { Builder, By, Key, promise, until } from 'selenium-webdriver';
 import promiseRetry from 'promise-retry';
@@ -29,7 +28,7 @@ export function execute(...operations) {
   const chromeCapabilities = webdriver.Capabilities.chrome();
   chromeCapabilities
   .set('chromeOptions', {
-    'args': ['--headless']
+    // 'args': ['--headless']
   })
   .set('acceptInsecureCerts', true)
 
@@ -187,25 +186,49 @@ export function click(type, needle) {
   }
 }
 
+function tryToFind(state, image) {
+  return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+    console.log(`trying ${image}: ${number}`);
+    return state.driver.takeScreenshot().then((haystack, err) => {
+      return findInImage(base64_encode(image), haystack)
+      .catch(retry)
+    })
+  })
+  .then(({ target, minMax }) => {
+    console.log("Match Found: " + JSON.stringify(minMax));
+    return target
+  })
+}
+
 export function ocr({ label, image, authKey, offsetX, offsetY, width, height, mock }) {
   return state => {
-    // TODO: take a new screenshot of size W:H =================================
-    // offset from ___________ corner of previous needle.
-    // const needle = getPath(state, image);
-    const imageToRead = getPath(state, image);
     var data = {};
-    // =========================================================================
     if (mock) {
-      data[label] = "This was just a test."
+
+      data[label] = "OCR mocked, results go here."
       return composeNextState(state, data)
+
     } else {
-      return readText(imageToRead, authKey)
+
+      const anchorImage = getPath(state, image);
+
+      return tryToFind(state, anchorImage)
+      .then((target) => {
+        return state.driver.takeScreenshot()
+      })
+      .then((fullScreen) =>{
+        return cropImage(fullScreen, offsetX, offsetY, width, height)
+      })
+      .then((imageToRead) => {
+        return readText(imageToRead, authKey)
+      })
       .then((results) => {
         const fullTextAnnotation = results.responses[0].fullTextAnnotation.text;
         data[label] = fullTextAnnotation;
         console.log(data);
         return composeNextState(state, data)
       })
+
     }
   }
 };
