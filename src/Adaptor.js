@@ -29,7 +29,7 @@ export function execute(...operations) {
   const chromeCapabilities = webdriver.Capabilities.chrome();
   chromeCapabilities
   .set('chromeOptions', {
-    // 'args': ['--headless']
+    'args': ['--headless']
   })
   .set('acceptInsecureCerts', true)
 
@@ -187,13 +187,28 @@ export function click(type, needle) {
   }
 }
 
-export function ocr(image, x, y, X, Y) {
+export function ocr({ label, image, authKey, offsetX, offsetY, width, height, mock }) {
   return state => {
-    readText(getPath(state, image))
-    // TODO: allow user to set key:value in nextState for data from OCR
-    return composeNextState(state, data)
+    // TODO: take a new screenshot of size W:H =================================
+    // offset from ___________ corner of previous needle.
+    // const needle = getPath(state, image);
+    const imageToRead = getPath(state, image);
+    var data = {};
+    // =========================================================================
+    if (mock) {
+      data[label] = "This was just a test."
+      return composeNextState(state, data)
+    } else {
+      return readText(imageToRead, authKey)
+      .then((results) => {
+        const fullTextAnnotation = results.responses[0].fullTextAnnotation.text;
+        data[label] = fullTextAnnotation;
+        console.log(data);
+        return composeNextState(state, data)
+      })
+    }
   }
-}
+};
 
 export {
   field,

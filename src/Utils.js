@@ -1,5 +1,5 @@
 export function getPath(state, image) {
-  return `./${state.path_to_images}/${image}`
+  return `./${state.imageDir}/${image}`
 };
 
 export function screenshot(driver, output) {

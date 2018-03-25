@@ -1,18 +1,33 @@
-import vision from '@google-cloud/vision';
+import fs from 'fs';
+import request from 'request'
 
-export function readText(imagePath) {
+function base64_encode(file) {
+    var bitmap = fs.readFileSync(file);
+    return new Buffer(bitmap).toString('base64');
+}
 
-  const client = new vision.ImageAnnotatorClient();
-  const fileName = imagePath;
+export function readText(imagePath, key) {
 
-  client
-    .documentTextDetection(fileName)
-    .then(results => {
-      const fullTextAnnotation = results[0].fullTextAnnotation;
-      console.log(fullTextAnnotation.text);
+  const url = `https://vision.googleapis.com/v1/images:annotate?key=${key}`
+
+  console.log(imagePath);
+
+  const json = {
+    "requests": [{
+      "image": {"content": base64_encode(imagePath)},
+      "features": [{"type": "TEXT_DETECTION"}]
+    }]
+  };
+
+  return new Promise((resolve, reject) => {
+    request.post({url, json}, function(error, response, body){
+      if(error) {
+        reject(error);
+      } else {
+        console.log(`✓ Google Vision OCR succeeded.`);
+        resolve(body);
+      }
     })
-    .catch(err => {
-      console.error('ERROR:', err);
-    });
+  })
 
 }
