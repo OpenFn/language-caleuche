@@ -20,7 +20,7 @@ export function findInImage(waldo, scene) {
       2,
       cv.LINE_8
     );
-    cv.imwrite('tmp/img/wheres_waldo.png', haystack);
+    cv.imwrite('tmp/wheres_waldo.png', haystack);
 
     const target = {
       y: (Math.floor(minMax.maxLoc.y + needle.rows/2)),
@@ -40,6 +40,5 @@ export function findInImage(waldo, scene) {
 export function cropImage(image, x, y, w, h) {
   const mat = cv.imdecode(Buffer.from(image,'base64'));
   const croppedImage = mat.getRegion(new cv.Rect(x, y, w, h));
-  cv.imwrite('tmp/img/cropped.png', croppedImage);
   return cv.imencode('.png', croppedImage).toString('base64');
 };

@@ -28,7 +28,10 @@ export function execute(...operations) {
   const chromeCapabilities = webdriver.Capabilities.chrome();
   chromeCapabilities
   .set('chromeOptions', {
-    'args': ['--headless']
+    'args': [
+      '--headless',
+      '--no-gpu'
+    ]
   })
   .set('acceptInsecureCerts', true)
 
@@ -48,18 +51,21 @@ export function execute(...operations) {
   }
 
   return state => {
-    state.driver = driver;
-    state.By = By;
-    state.promise = promise;
-    state.until = until;
-    return commonExecute(...operations, cleanupState)({...initialState, ...state})
+    return commonExecute(
+      ...operations,
+      cleanupState
+    )({...initialState, ...state})
+    .catch((e) => {
+      driver.quit();
+      throw e;
+    })
   };
 
 }
 
 function cleanupState(state) {
   if (state.driver) {
-    screenshot(state.driver, 'tmp/img/finalScreen.png')
+    screenshot(state.driver, 'tmp/final_screen.png')
     state.driver.quit();
     delete state.driver;
   }
