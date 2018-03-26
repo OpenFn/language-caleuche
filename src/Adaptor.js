@@ -28,7 +28,7 @@ export function execute(...operations) {
   const chromeCapabilities = webdriver.Capabilities.chrome();
   chromeCapabilities
   .set('chromeOptions', {
-    // 'args': ['--headless']
+    'args': ['--headless']
   })
   .set('acceptInsecureCerts', true)
 
@@ -133,9 +133,9 @@ export function type(text) {
   }
 }
 
-export function visible(needle) {
+export function visible(needle, timeout) {
   return state => {
-    return search(state, getPath(state, needle))
+    return search(state, getPath(state, needle), timeout)
   }
 }
 
@@ -151,8 +151,6 @@ export function visible(needle) {
  */
 export function click(type, needle, timeout) {
   return state => {
-
-    console.log(state);
 
     if (!needle) {
 
@@ -180,7 +178,7 @@ export function click(type, needle, timeout) {
 
 function search(state, image, timeout) {
   const options = {
-    retries: 10, // The maximum amount of times to retry the operation. Default is 10.
+    retries: ( timeout ? (timeout*2)/1000 : 10 ), // The maximum amount of times to retry the operation. Default is 10.
     factor: 2, // The exponential factor to use. Default is 2.
     minTimeout: 500, // The number of milliseconds before starting the first retry. Default is 1000.
     maxTimeout: 1000, // The maximum number of milliseconds between two retries. Default is Infinity.
