@@ -17,6 +17,7 @@ export function screenshot(driver, output) {
 }
 
 export function offsetClick(state, target) {
+  console.log("Clicking: " + JSON.stringify(target));
   return state.driver.actions()
     .mouseMove(state.element, target)
     .click()

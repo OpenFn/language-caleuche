@@ -118,7 +118,10 @@ export function url(url) {
 
 export function elementById(id, timeout) {
   return state => {
-    return state.driver.wait(until.elementLocated(By.id(id)), 25 * 1000)
+    return state.driver.wait(
+      until.elementLocated(By.id(id)),
+      timeout || 25 * 1000
+    )
     .then((element) => { return { ...state, element } })
   }
 }
@@ -132,13 +135,7 @@ export function type(text) {
 
 export function visible(needle) {
   return state => {
-    return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
-      console.log(`trying ${needle}: ${number}`);
-      return state.driver.takeScreenshot().then((haystack, err) => {
-        return findInImage(getPath(state, needle), haystack)
-        .catch(retry)
-      })
-    })
+    return search(state, getPath(state, needle))
   }
 }
 
@@ -152,8 +149,10 @@ export function visible(needle) {
  * @param {needle} needle is the image to search for on the screen/canvas
  * @returns {<Operation>}
  */
-export function click(type, needle) {
+export function click(type, needle, timeout) {
   return state => {
+
+    console.log(state);
 
     if (!needle) {
 
@@ -165,15 +164,8 @@ export function click(type, needle) {
 
     } else {
 
-      return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
-        console.log(`trying ${needle}: ${number}`);
-        return state.driver.takeScreenshot().then((haystack, err) => {
-          return findInImage(getPath(state, needle), haystack)
-          .catch(retry)
-        })
-      })
+    return search(state, getPath(state, needle), timeout)
       .then(({ target, minMax }) => {
-        console.log("Match Found: " + JSON.stringify(minMax));
         offsetClick(state, target)
         return target
       })
@@ -186,8 +178,16 @@ export function click(type, needle) {
   }
 }
 
-function tryToFind(state, image) {
-  return promiseRetry({ factor: 1, maxTimeout: 1000 }, (retry, number) => {
+function search(state, image, timeout) {
+  const options = {
+    retries: 10, // The maximum amount of times to retry the operation. Default is 10.
+    factor: 2, // The exponential factor to use. Default is 2.
+    minTimeout: 500, // The number of milliseconds before starting the first retry. Default is 1000.
+    maxTimeout: 1000, // The maximum number of milliseconds between two retries. Default is Infinity.
+    randomize: false // Randomizes the timeouts by multiplying with a factor between 1 to 2. Default is false.
+  }
+
+  return promiseRetry(options, (retry, number) => {
     console.log(`trying ${image}: ${number}`);
     return state.driver.takeScreenshot().then((haystack, err) => {
       return findInImage(base64_encode(image), haystack)
@@ -196,7 +196,7 @@ function tryToFind(state, image) {
   })
   .then(({ target, minMax }) => {
     console.log("Match Found: " + JSON.stringify(minMax));
-    return target
+    return { target, minMax };
   })
 }
 
@@ -212,7 +212,7 @@ export function ocr({ label, image, authKey, offsetX, offsetY, width, height, mo
 
       const anchorImage = getPath(state, image);
 
-      return tryToFind(state, anchorImage)
+      return search(state, anchorImage)
       .then((target) => {
         return state.driver.takeScreenshot()
       })

@@ -6,8 +6,6 @@ export function findInImage(waldo, scene) {
     const needle = cv.imdecode(Buffer.from(waldo,'base64'));
     const haystack = cv.imdecode(Buffer.from(scene,'base64'));
 
-    console.log(needle);
-    console.log(haystack);
     // Match template (the brightest locations indicate the highest match)
     const matched = haystack.matchTemplate(needle, 5);
 
