@@ -6,7 +6,7 @@ export function base64_encode(file) {
 }
 
 export function getPath(state, image) {
-  return `./${state.imageDir}/${image}`
+  return `${state.imageDir}/${image}`
 };
 
 export function screenshot(driver, output) {
