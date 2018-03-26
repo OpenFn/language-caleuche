@@ -143,10 +143,11 @@ export function visible(needle, timeout) {
  * clicks on an element or a location offset within an element/canvas
  * @public
  * @example
- *  click('single', 'happy_face.png')
+ *  click('single', 'happy_face.png', 4000)
  * @function
- * @param {type} type is either 'single' or 'double'
- * @param {needle} needle is the image to search for on the screen/canvas
+ * @param {string} type is either 'single' or 'double'
+ * @param {string} needle is the image to search for on the screen/canvas
+ * @param {integer} timeout is the image to search for on the screen/canvas
  * @returns {<Operation>}
  */
 export function click(type, needle, timeout) {
