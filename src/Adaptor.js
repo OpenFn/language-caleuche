@@ -29,7 +29,7 @@ export function execute(...operations) {
   chromeCapabilities
   .set('chromeOptions', {
     'args': [
-      '--headless',
+      // '--headless',
       '--no-gpu'
     ]
   })
@@ -56,7 +56,7 @@ export function execute(...operations) {
       cleanupState
     )({...initialState, ...state})
     .catch((e) => {
-      driver.quit();
+      // driver.quit();
       throw e;
     })
   };
@@ -66,7 +66,7 @@ export function execute(...operations) {
 function cleanupState(state) {
   if (state.driver) {
     screenshot(state.driver, 'tmp/final_screen.png')
-    state.driver.quit();
+    // state.driver.quit();
     delete state.driver;
   }
   delete state.By;
@@ -108,10 +108,17 @@ export function conditional(test, funTrue, funFalse) {
   }
 }
 
-export function wait(ms) {
+export function wait(ms, image) {
   return state => {
-    return new Promise(resolve => setTimeout(() => resolve(state), ms))
-    .then(() => { return state });
+    if (image) {
+      return new Promise(resolve => {
+        resolve(visible(image, ms))
+      })
+      .then(() => { return state });
+    } else {
+      return new Promise(resolve => setTimeout(() => resolve(state), ms))
+      .then(() => { return state });
+    }
   }
 }
 
@@ -135,21 +142,23 @@ export function elementById(id, timeout) {
 export function type(keys) {
   return state => {
     const array = (typeof keys == 'string' ? [keys] : keys)
-    return state.element.sendKeys(
+    console.log("typing: " + parseKeys(state, array));
+    // return state.element.sendKeys(
+    return state.driver.actions().sendKeys(
       parseKeys(state, array)
-    )
+    ).perform()
     .then(() => { return state })
-
   }
 }
 
 export function chord(keys) {
   return state => {
-    return state.element.sendKeys(
+    console.log("chording: " + parseKeys(state, keys));
+    return state.driver.actions().sendKeys(
       state.Key.chord(
         parseKeys(state, keys)
       )
-    )
+    ).perform()
     .then(() => { return state })
   }
 }
@@ -167,6 +176,7 @@ function parseKeys(state, keys) {
 export function visible(needle, timeout) {
   return state => {
     return search(state, getPath(state, needle), timeout)
+    .then(() => { return state })
   }
 }
 
