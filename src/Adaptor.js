@@ -132,11 +132,36 @@ export function elementById(id, timeout) {
   }
 }
 
-export function type(text) {
+export function type(keys) {
   return state => {
-    return state.element.sendKeys(text)
+    const array = (typeof keys == 'string' ? [keys] : keys)
+    return state.element.sendKeys(
+      parseKeys(state, array)
+    )
+    .then(() => { return state })
+
+  }
+}
+
+export function chord(keys) {
+  return state => {
+    return state.element.sendKeys(
+      state.Key.chord(
+        parseKeys(state, keys)
+      )
+    )
     .then(() => { return state })
   }
+}
+
+function parseKeys(state, keys) {
+  return keys.map((item) => {
+    if (item.startsWith('Key.')) {
+      return state.Key[item.substring(item.indexOf(".") +1 )]
+    } else {
+      return item
+    }
+  }).join('')
 }
 
 export function visible(needle, timeout) {
