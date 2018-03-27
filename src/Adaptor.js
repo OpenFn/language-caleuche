@@ -110,10 +110,9 @@ export function driver(func) {
 
 export function wait(ms) {
   return state => {
-    console.log(`wait for ${ms}ms . . . . `);
+    console.log(`Waiting for ${ms}ms...`);
     return new Promise(function(resolve, reject) {
         setTimeout(() => {
-            console.log(`Timer expired!!!`);
             resolve();
         }, ms)
     })
