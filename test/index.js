@@ -1,8 +1,5 @@
 import {expect} from 'chai';
-
 import nock from 'nock';
-import ClientFixtures, {fixtures} from './ClientFixtures'
-
 import Adaptor from '../src';
 const { execute, post, wait, driver, type, elementById, url, click,
   assertVisible } = Adaptor;
