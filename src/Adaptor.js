@@ -2,7 +2,7 @@
 import { execute as commonExecute, expandReferences, composeNextState } from 'language-common';
 import { findInImage, cropImage } from './OpenCV';
 import { readText } from './OCR'
-import { screenshot, getPath, offsetClick, base64_encode } from './Utils';
+import { screenshot, getPath, offsetClick, base64_encode, parseKeys } from './Utils';
 import { promisify } from 'util';
 import { Builder, By, Key, promise, until } from 'selenium-webdriver';
 import promiseRetry from 'promise-retry';
@@ -29,7 +29,7 @@ export function execute(...operations) {
   chromeCapabilities
   .set('chromeOptions', {
     'args': [
-      // '--headless',
+      '--headless',
       '--no-gpu'
     ]
   })
@@ -56,7 +56,7 @@ export function execute(...operations) {
       cleanupState
     )({...initialState, ...state})
     .catch((e) => {
-      // driver.quit();
+      driver.quit();
       throw e;
     })
   };
@@ -66,7 +66,7 @@ export function execute(...operations) {
 function cleanupState(state) {
   if (state.driver) {
     screenshot(state.driver, 'tmp/final_screen.png')
-    // state.driver.quit();
+    state.driver.quit();
     delete state.driver;
   }
   delete state.By;
@@ -92,33 +92,32 @@ export function driver(func) {
   }
 }
 
-export function conditional(test, funTrue, funFalse) {
-  return state => {
-    return test(state)
-    .then(() => {
-      return funTrue(state)
-    })
-    .catch(() => {
-      if (funFalse) {
-        return funFalse(state)
-      } else {
-        return state;
-      }
-    })
-  }
-}
+// export function conditional(test, funTrue, funFalse) {
+//   return state => {
+//     return test(state)
+//     .then(() => {
+//       return funTrue(state)
+//     })
+//     .catch(() => {
+//       if (funFalse) {
+//         return funFalse(state)
+//       } else {
+//         return state;
+//       }
+//     })
+//   }
+// }
 
-export function wait(ms, image) {
+export function wait(ms) {
   return state => {
-    if (image) {
-      return new Promise(resolve => {
-        resolve(visible(image, ms))
-      })
-      .then(() => { return state });
-    } else {
-      return new Promise(resolve => setTimeout(() => resolve(state), ms))
-      .then(() => { return state });
-    }
+    console.log(`wait for ${ms}ms . . . . `);
+    return new Promise(function(resolve, reject) {
+        setTimeout(() => {
+            console.log(`Timer expired!!!`);
+            resolve();
+        }, ms)
+    })
+    .then(() => { return state })
   }
 }
 
@@ -141,36 +140,31 @@ export function elementById(id, timeout) {
 
 export function type(keys) {
   return state => {
+
     const array = (typeof keys == 'string' ? [keys] : keys)
     console.log("typing: " + parseKeys(state, array));
-    // return state.element.sendKeys(
-    return state.driver.actions().sendKeys(
+
+    return state.element.sendKeys(
       parseKeys(state, array)
-    ).perform()
+    )
     .then(() => { return state })
+
   }
 }
 
 export function chord(keys) {
   return state => {
+
     console.log("chording: " + parseKeys(state, keys));
-    return state.driver.actions().sendKeys(
+
+    return state.element.sendKeys(
       state.Key.chord(
         parseKeys(state, keys)
       )
-    ).perform()
+    )
     .then(() => { return state })
-  }
-}
 
-function parseKeys(state, keys) {
-  return keys.map((item) => {
-    if (item.startsWith('Key.')) {
-      return state.Key[item.substring(item.indexOf(".") +1 )]
-    } else {
-      return item
-    }
-  }).join('')
+  }
 }
 
 export function visible(needle, timeout) {
@@ -204,7 +198,7 @@ export function click(type, needle, timeout) {
 
     } else {
 
-    return search(state, getPath(state, needle), timeout)
+      return search(state, getPath(state, needle), timeout)
       .then(({ target, minMax }) => {
         offsetClick(state, target)
         return target
@@ -227,12 +221,25 @@ function search(state, image, timeout) {
     randomize: false // Randomizes the timeouts by multiplying with a factor between 1 to 2. Default is false.
   }
 
+  // promiseRetry(function (retry, number) {
+  //     console.log('attempt number', number);
+  //
+  //     return doSomething()
+  //     .catch(retry);
+  // })
+  // .then(function (value) {
+  //     // ..
+  // }, function (err) {
+  //     // ..
+  // });
+
   return promiseRetry(options, (retry, number) => {
     console.log(`trying ${image}: ${number}`);
     return state.driver.takeScreenshot().then((haystack, err) => {
+      console.log("took screenie");
       return findInImage(base64_encode(image), haystack)
-      .catch(retry)
     })
+    .catch(retry)
   })
   .then(({ target, minMax }) => {
     console.log("Match Found: " + JSON.stringify(minMax));

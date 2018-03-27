@@ -5,8 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "make",
-    "test": "mocha --compilers js:babel-core/register",
-    "test:watch": "mocha -w --compilers js:babel-core/register"
+    "test": "mocha --timeout 10000 --compilers js:babel-core/register",
+    "test:watch": "mocha --timeout 10000 -w --compilers js:babel-core/register"
   },
   "author": "Open Function Group",
   "license": "LGPLv3",
