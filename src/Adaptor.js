@@ -167,7 +167,7 @@ export function chord(keys) {
   }
 }
 
-export function visible(needle, timeout) {
+export function assertVisible(needle, timeout) {
   return state => {
     return search(state, getPath(state, needle), timeout)
     .then(() => { return state })
@@ -221,22 +221,9 @@ function search(state, image, timeout) {
     randomize: false // Randomizes the timeouts by multiplying with a factor between 1 to 2. Default is false.
   }
 
-  // promiseRetry(function (retry, number) {
-  //     console.log('attempt number', number);
-  //
-  //     return doSomething()
-  //     .catch(retry);
-  // })
-  // .then(function (value) {
-  //     // ..
-  // }, function (err) {
-  //     // ..
-  // });
-
   return promiseRetry(options, (retry, number) => {
-    console.log(`trying ${image}: ${number}`);
+    console.log(`Searching for ${image}: try #${number}`);
     return state.driver.takeScreenshot().then((haystack, err) => {
-      console.log("took screenie");
       return findInImage(base64_encode(image), haystack)
     })
     .catch(retry)

@@ -19,6 +19,8 @@ export function findInImage(waldo, scene) {
       2,
       cv.LINE_8
     );
+
+    // write out the bounded waldo for debugging
     cv.imwrite('tmp/wheres_waldo.png', haystack);
 
     const target = {
