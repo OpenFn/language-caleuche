@@ -2,7 +2,7 @@
 import { execute as commonExecute, expandReferences, composeNextState } from 'language-common';
 import { findInImage, cropImage } from './OpenCV';
 import { readText } from './OCR'
-import { screenshot, getPath, offsetClick, base64_encode } from './Utils';
+import { screenshot, getPath, offsetClick, base64_encode, parseKeys } from './Utils';
 import { promisify } from 'util';
 import { Builder, By, Key, promise, until } from 'selenium-webdriver';
 import promiseRetry from 'promise-retry';
@@ -92,26 +92,32 @@ export function driver(func) {
   }
 }
 
-export function conditional(test, funTrue, funFalse) {
-  return state => {
-    return test(state)
-    .then(() => {
-      return funTrue(state)
-    })
-    .catch(() => {
-      if (funFalse) {
-        return funFalse(state)
-      } else {
-        return state;
-      }
-    })
-  }
-}
+// export function conditional(test, funTrue, funFalse) {
+//   return state => {
+//     return test(state)
+//     .then(() => {
+//       return funTrue(state)
+//     })
+//     .catch(() => {
+//       if (funFalse) {
+//         return funFalse(state)
+//       } else {
+//         return state;
+//       }
+//     })
+//   }
+// }
 
 export function wait(ms) {
   return state => {
-    return new Promise(resolve => setTimeout(() => resolve(state), ms))
-    .then(() => { return state });
+    console.log(`wait for ${ms}ms . . . . `);
+    return new Promise(function(resolve, reject) {
+        setTimeout(() => {
+            console.log(`Timer expired!!!`);
+            resolve();
+        }, ms)
+    })
+    .then(() => { return state })
   }
 }
 
@@ -134,7 +140,10 @@ export function elementById(id, timeout) {
 
 export function type(keys) {
   return state => {
+
     const array = (typeof keys == 'string' ? [keys] : keys)
+    console.log("typing: " + parseKeys(state, array));
+
     return state.element.sendKeys(
       parseKeys(state, array)
     )
@@ -145,28 +154,23 @@ export function type(keys) {
 
 export function chord(keys) {
   return state => {
+
+    console.log("chording: " + parseKeys(state, keys));
+
     return state.element.sendKeys(
       state.Key.chord(
         parseKeys(state, keys)
       )
     )
     .then(() => { return state })
+
   }
 }
 
-function parseKeys(state, keys) {
-  return keys.map((item) => {
-    if (item.startsWith('Key.')) {
-      return state.Key[item.substring(item.indexOf(".") +1 )]
-    } else {
-      return item
-    }
-  }).join('')
-}
-
-export function visible(needle, timeout) {
+export function assertVisible(needle, timeout) {
   return state => {
     return search(state, getPath(state, needle), timeout)
+    .then(() => { return state })
   }
 }
 
@@ -194,7 +198,7 @@ export function click(type, needle, timeout) {
 
     } else {
 
-    return search(state, getPath(state, needle), timeout)
+      return search(state, getPath(state, needle), timeout)
       .then(({ target, minMax }) => {
         offsetClick(state, target)
         return target
@@ -218,11 +222,11 @@ function search(state, image, timeout) {
   }
 
   return promiseRetry(options, (retry, number) => {
-    console.log(`trying ${image}: ${number}`);
+    console.log(`Searching for ${image}: try #${number}`);
     return state.driver.takeScreenshot().then((haystack, err) => {
       return findInImage(base64_encode(image), haystack)
-      .catch(retry)
     })
+    .catch(retry)
   })
   .then(({ target, minMax }) => {
     console.log("Match Found: " + JSON.stringify(minMax));
