@@ -6,7 +6,7 @@ export function findInImage(waldo, scene) {
     const haystack = cv.imdecode(Buffer.from(scene,'base64'));
 
     // Match template (the brightest locations indicate the highest match)
-    const matched = haystack.matchTemplate(needle, 5);
+    const matched = haystack.matchTemplate(needle, 3);
 
     // Use minMaxLoc to locate the highest value (or lower, depending of the type of matching method)
     const minMax = matched.minMaxLoc();
@@ -28,10 +28,11 @@ export function findInImage(waldo, scene) {
       x: (Math.floor(minMax.maxLoc.x + needle.cols/2))
     };
 
-    if (minMax.maxVal > 0.55) {
+    // console.log(JSON.stringify(minMax.maxVal))
+    if (minMax.maxVal > 0.90) {
       return {target, minMax}
     } else {
-      throw("No match found: " + JSON.stringify(minMax))
+      throw("No match found: " + JSON.stringify(minMax.maxVal))
     }
 
 }

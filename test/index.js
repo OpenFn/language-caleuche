@@ -30,7 +30,7 @@ describe("execute", () => {
         console.log(4);
         return composeNextState(state, 4)
       },
-      assertVisible("gle.png"),
+      assertVisible("google_e.png"),
       click("single", "google_e.png"),
       (state) => {
         console.log(5);
