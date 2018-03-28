@@ -92,21 +92,28 @@ export function driver(func) {
   }
 }
 
-// export function conditional(test, funTrue, funFalse) {
-//   return state => {
-//     return test(state)
-//     .then(() => {
-//       return funTrue(state)
-//     })
-//     .catch(() => {
-//       if (funFalse) {
-//         return funFalse(state)
-//       } else {
-//         return state;
-//       }
-//     })
-//   }
-// }
+export function conditional(test, funTrue, funFalse) {
+  return state => {
+
+    function wrapper(boolean) {
+      return new Promise(function(resolve, reject) {
+        ( boolean ? resolve() : reject() )
+      })
+    }
+
+    return ( typeof test == 'boolean' ? wrapper(test) : test(state) )
+    .then(() => {
+      return funTrue(state)
+    })
+    .catch(() => {
+      if (funFalse) {
+        return funFalse(state)
+      } else {
+        return state;
+      }
+    })
+  }
+}
 
 export function wait(ms) {
   return state => {
