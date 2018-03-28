@@ -28,7 +28,7 @@ export function findInImage(waldo, scene) {
       x: (Math.floor(minMax.maxLoc.x + needle.cols/2))
     };
 
-    if (minMax.maxVal > 0.90) {
+    if (minMax.maxVal > 0.99) {
       console.log("Match Found: " + JSON.stringify(minMax));
       return {target, minMax}
     } else {

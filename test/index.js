@@ -1,16 +1,18 @@
 import {expect} from 'chai';
 import Adaptor from '../src';
 const {
+  assertVisible,
+  click,
+  chord,
+  conditional,
+  driver,
+  elementById,
   execute,
   post,
-  wait,
-  driver,
+  setDelay,
   type,
-  elementById,
   url,
-  click,
-  assertVisible,
-  conditional
+  wait,
 } = Adaptor;
 import {composeNextState} from 'language-common';
 
@@ -21,6 +23,7 @@ describe("execute", () => {
       imageDir: "./test"
     }
     let operations = [
+      setDelay(13),
       (state) => {
         console.log(1);
         return composeNextState(state, 1)
@@ -65,6 +68,7 @@ describe("execute", () => {
       elementById("main-q"),
       type("a"),
       type(["a", "234"]),
+      chord(['Key.CONTROL', 's']),
       driver(state => {
         return state.element.sendKeys("abc", state.Key.TAB).then(() => {
           return state
@@ -96,6 +100,7 @@ describe("execute", () => {
 
       const next = {
         "data": 8,
+        "delay": 13,
         "imageDir": "./test",
         "references": [
           null,

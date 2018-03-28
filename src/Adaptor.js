@@ -29,7 +29,8 @@ export function execute(...operations) {
   chromeCapabilities
   .set('chromeOptions', {
     'args': [
-      '--headless',
+      // '--headless',
+      // '--window-size=1080,1080',
       '--no-gpu'
     ]
   })
@@ -43,6 +44,7 @@ export function execute(...operations) {
   const initialState = {
     references: [],
     data: null,
+    delay: 0,
     driver,
     By,
     Key,
@@ -56,7 +58,7 @@ export function execute(...operations) {
       cleanupState
     )({...initialState, ...state})
     .catch((e) => {
-      driver.quit();
+      // driver.quit();
       throw e;
     })
   };
@@ -66,7 +68,7 @@ export function execute(...operations) {
 function cleanupState(state) {
   if (state.driver) {
     screenshot(state.driver, 'tmp/final_screen.png')
-    state.driver.quit();
+    // state.driver.quit();
     delete state.driver;
   }
   delete state.By;
@@ -88,7 +90,7 @@ function cleanupState(state) {
  */
 export function driver(func) {
   return state => {
-    return func(state);
+    return func(state)
   }
 }
 
@@ -153,6 +155,7 @@ export function type(keys) {
     return state.element.sendKeys(
       parseKeys(state, array)
     )
+    .then(sleep(state.delay))
     .then(() => { return state })
 
   }
@@ -168,6 +171,7 @@ export function chord(keys) {
         parseKeys(state, keys)
       )
     )
+    .then(sleep(state.delay))
     .then(() => { return state })
 
   }
@@ -178,6 +182,19 @@ function searchArray(state, input, timeout) {
   return imageArray.map(img => {
     return search(state, getPath(state, img), timeout)
   });
+}
+
+export function setDelay(ms) {
+  return state => {
+    state.delay = ms;
+    return state;
+  }
+}
+
+function sleep(ms) {
+  return function(state) {
+    return new Promise(resolve => setTimeout(() => resolve(state), ms));
+  };
 }
 
 export function assertVisible(needle, timeout) {
@@ -209,6 +226,7 @@ export function click(type, needle, timeout) {
       .then(() => {
         return ( type == 'double' && state.element.click() )
       })
+      .then(sleep(state.delay))
       .then(() => { return state })
 
     } else {
@@ -223,6 +241,7 @@ export function click(type, needle, timeout) {
       .then((target) => {
         return ( type == 'double' && offsetClick(state, target) )
       })
+      .then(sleep(state.delay))
       .then(() => { return state })
 
     }
@@ -230,6 +249,9 @@ export function click(type, needle, timeout) {
 }
 
 function search(state, image, timeout) {
+
+  console.log(`Searching for ${image}...`);
+
   const options = {
     retries: ( timeout ? (timeout*2) / 1000 : 10 ), // The maximum amount of times to retry the operation. Default is 10.
     factor: 2, // The exponential factor to use. Default is 2.
@@ -245,6 +267,7 @@ function search(state, image, timeout) {
     .catch(retry)
   })
   .then(({ target, minMax }) => {
+    console.log(`Found: ${image}.`);
     return { target, minMax };
   })
 }
