@@ -42,10 +42,11 @@ describe("execute", () => {
         console.log(4);
         return composeNextState(state, 4)
       },
-      // assertVisible("sample_text_needle.png"),
-      click("single", "sample_text_needle.png"),
-      // click("single", "messi.jpg", 2000),
-      // click("single", ["sample_text_needle.png", "messi.jpg"], 2000),
+      assertVisible("sample_text_needle.png"),
+      click("single", "sample_text_needle.png", 2000),
+      // click("single", "messi.jpg", 1000),
+      click("single", ["sample_text_needle.png", "messi.jpg"], 2000),
+      // click("single", ["sample_text_needle.png", "sample_text_needle.png"], 2000),
       (state) => {
         console.log(5);
         return composeNextState(state, 5)

@@ -173,9 +173,18 @@ export function chord(keys) {
   }
 }
 
+function searchArray(state, input, timeout) {
+  const imageArray = (typeof input == 'object' ? input : [input])
+  return imageArray.map(img => {
+    return search(state, getPath(state, img), timeout)
+  });
+}
+
 export function assertVisible(needle, timeout) {
   return state => {
-    return search(state, getPath(state, needle), timeout)
+    return Promise.race(
+      searchArray(state, needle, timeout)
+    )
     .then(() => { return state })
   }
 }
@@ -204,7 +213,9 @@ export function click(type, needle, timeout) {
 
     } else {
 
-      return search(state, getPath(state, needle), timeout)
+      return Promise.race(
+        searchArray(state, needle, timeout)
+      )
       .then(({ target, minMax }) => {
         offsetClick(state, target)
         return target
@@ -220,7 +231,7 @@ export function click(type, needle, timeout) {
 
 function search(state, image, timeout) {
   const options = {
-    retries: ( timeout ? (timeout*2)/1000 : 10 ), // The maximum amount of times to retry the operation. Default is 10.
+    retries: ( timeout ? (timeout*2) / 1000 : 10 ), // The maximum amount of times to retry the operation. Default is 10.
     factor: 2, // The exponential factor to use. Default is 2.
     minTimeout: 500, // The number of milliseconds before starting the first retry. Default is 1000.
     maxTimeout: 1000, // The maximum number of milliseconds between two retries. Default is Infinity.
@@ -228,14 +239,12 @@ function search(state, image, timeout) {
   }
 
   return promiseRetry(options, (retry, number) => {
-    console.log(`Searching for ${image}: try #${number}`);
     return state.driver.takeScreenshot().then((haystack, err) => {
       return findInImage(base64_encode(image), haystack)
     })
     .catch(retry)
   })
   .then(({ target, minMax }) => {
-    console.log("Match Found: " + JSON.stringify(minMax));
     return { target, minMax };
   })
 }
