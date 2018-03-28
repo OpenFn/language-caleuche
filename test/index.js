@@ -1,8 +1,6 @@
 import {expect} from 'chai';
-import nock from 'nock';
 import Adaptor from '../src';
-const { execute, post, wait, driver, type, elementById, url, click,
-  assertVisible } = Adaptor;
+const { execute, post, wait, driver, type, elementById, url, click, assertVisible } = Adaptor;
 import { composeNextState } from 'language-common';
 
 describe("execute", () => {
@@ -23,20 +21,20 @@ describe("execute", () => {
           return state.driver.actions().sendKeys("a").perform()
           .then(() => { return composeNextState(state, 3) })
       }),
-      url("https://www.google.com"),
-      elementById("hplogo"),
+      url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+      elementById("main-q"),
       click(),
       (state) => {
         console.log(4);
         return composeNextState(state, 4)
       },
-      assertVisible("google_e.png"),
-      click("single", "google_e.png"),
+      assertVisible("sample_text_needle.png"),
+      click("single", "sample_text_needle.png"),
       (state) => {
         console.log(5);
         return composeNextState(state, 5)
       },
-      elementById("lst-ib"),
+      elementById("main-q"),
       type("a"),
       type(["a", "234"]),
       driver(state => {
@@ -73,44 +71,10 @@ describe("execute", () => {
 
       expect(finalState).to.eql(next)
 
-    }).then(done).catch(done)
-
-  })
-
-  it("assigns references, data to the initialState", () => {
-    let state = {}
-
-    let finalState = execute()(state)
-
-    execute()(state).then((finalState) => {
-      expect(finalState).to.eql({references: [], data: null})
     })
+    .then(done)
+    .catch(done)
 
   })
-})
 
-// describe("post", () => {
-//
-//   before(() => {
-//     nock('https://fake.server.com').post('/api').reply(200, {foo: 'bar'});
-//   })
-//
-//   it("calls the callback", () => {
-//     let state = {
-//       configuration: {
-//         username: "hello",
-//         password: "there"
-//       }
-//     };
-//
-//     return execute(post({
-//       "url": "https://fake.server.com/api",
-//       "headers": null,
-//       "body": {"a": 1}
-//     }))(state).then((state) => {
-//       let responseBody = state.response.body
-//       // Check that the post made it's way to the request as a string.
-//       expect(responseBody).to.eql({foo: 'bar'})
-//     })
-//   })
-// })
+})
