@@ -29,8 +29,8 @@ export function execute(...operations) {
   chromeCapabilities
   .set('chromeOptions', {
     'args': [
-      // '--headless',
-      // '--window-size=1080,1080',
+      '--headless',
+      '--window-size=1080,1080',
       '--no-gpu'
     ]
   })
@@ -58,7 +58,7 @@ export function execute(...operations) {
       cleanupState
     )({...initialState, ...state})
     .catch((e) => {
-      // driver.quit();
+      driver.quit();
       throw e;
     })
   };
@@ -68,7 +68,7 @@ export function execute(...operations) {
 function cleanupState(state) {
   if (state.driver) {
     screenshot(state.driver, 'tmp/final_screen.png')
-    // state.driver.quit();
+    state.driver.quit();
     delete state.driver;
   }
   delete state.By;
@@ -152,9 +152,11 @@ export function type(keys) {
     const array = (typeof keys == 'string' ? [keys] : keys)
     console.log("typing: " + parseKeys(state, array));
 
-    return state.element.sendKeys(
+    // return state.element.sendKeys(
+    return state.driver.actions().sendKeys(
       parseKeys(state, array)
     )
+    .perform()
     .then(sleep(state.delay))
     .then(() => { return state })
 
@@ -166,11 +168,13 @@ export function chord(keys) {
 
     console.log("chording: " + parseKeys(state, keys));
 
-    return state.element.sendKeys(
+    // return state.element.sendKeys(
+    return state.driver.actions().sendKeys(
       state.Key.chord(
         parseKeys(state, keys)
       )
     )
+    .perform()
     .then(sleep(state.delay))
     .then(() => { return state })
 
