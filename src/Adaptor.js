@@ -146,6 +146,16 @@ export function elementById(id, timeout) {
   }
 }
 
+export function elementByCss(id, timeout) {
+  return state => {
+    return state.driver.wait(
+      until.elementLocated(By.css(id)),
+      timeout || 25 * 1000
+    )
+    .then((element) => { return { ...state, element } })
+  }
+}
+
 export function type(keys) {
   return state => {
 
