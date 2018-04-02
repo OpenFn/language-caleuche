@@ -29,7 +29,7 @@ export function findInImage(waldo, scene) {
     };
 
     if (minMax.maxVal > 0.990) {
-      console.log(`Match Found: ${JSON.stringify(minMax.maxVal)} at ${target}.`);
+      console.log(`Match Found: ${JSON.stringify(minMax.maxVal)} at ${JSON.stringify(target)}.`);
       return {target, minMax}
     } else {
       throw("No match found: " + JSON.stringify(minMax.maxVal))

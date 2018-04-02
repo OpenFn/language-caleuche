@@ -8,6 +8,7 @@ import {
   elementByCss,
   elementById,
   execute,
+  ocr,
   post,
   setDelay,
   type,
@@ -59,9 +60,17 @@ const kitchenSink = [
   },
   assertVisible("sample_text_needle.png"),
   click("single", "sample_text_needle.png", 2000),
-  // click("single", "messi.jpg", 1000),
+  ocr({
+    label: 'result',
+    image: 'sample_text_needle.png',
+    authKey: "blah",
+    offsetX: 0,
+    offsetY: 0,
+    width: 1,
+    height: 1,
+    mock: true
+  }),
   click("single", ["sample_text_needle.png", "messi.jpg"], 2000),
-  // click("single", ["sample_text_needle.png", "sample_text_needle.png"], 2000),
   (state) => {
     console.log(5);
     return composeNextState(state, 5)

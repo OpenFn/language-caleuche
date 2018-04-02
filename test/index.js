@@ -25,6 +25,7 @@ describe("execute", () => {
           2,
           3,
           4,
+          {"result": "OCR mocked, results go here."},
           5,
           7
         ]

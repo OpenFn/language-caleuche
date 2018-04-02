@@ -299,11 +299,13 @@ export function ocr({ label, image, authKey, offsetX, offsetY, width, height, mo
       const anchorImage = getPath(state, image);
 
       return search(state, anchorImage)
-      .then((target) => {
+      .then(({target}) => {
+        const xPos = target.x + offsetX;
+        const yPos = target.y + offsetY;
         return state.driver.takeScreenshot()
-      })
-      .then((fullScreen) =>{
-        return cropImage(fullScreen, offsetX, offsetY, width, height)
+        .then((fullScreen) => {
+          return cropImage(fullScreen, xPos, yPos, width, height)
+        })
       })
       .then((imageToRead) => {
         return readText(imageToRead, authKey)
