@@ -14,7 +14,30 @@ import {
   type,
   url,
   wait,
+  alterState
 } from '../lib/Adaptor';
+
+const conditionals = [
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  conditional(
+    assertVisible("messi.jpg", 500),
+    driver(state => {
+      console.log("when true.");
+      return state;
+    }),
+    state => {
+      console.log("when false.")
+      return wait(2000)(state)
+      .then(state => {
+        return assertVisible("sample_text_needle.png")(state)
+      })
+      .then(state => {
+        console.log("after waiting and asserting!")
+        return state
+      })
+    }
+  )
+]
 
 const kitchenSink = [
   setDelay(13),
@@ -117,4 +140,4 @@ const kitchenSink = [
   conditional(true, wait(20), null)
 ]
 
-export { kitchenSink };
+export { kitchenSink, conditionals };

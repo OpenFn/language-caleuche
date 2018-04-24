@@ -1,19 +1,17 @@
 import {expect} from 'chai';
 import Adaptor from '../lib';
-const { execute } = Adaptor;
-import { kitchenSink } from './testExpressions.js';
+const {execute} = Adaptor;
+import {kitchenSink, conditionals} from './testExpressions.js';
 
 describe("execute", () => {
 
+  let state = {
+    imageDir: "./test"
+  }
+
   it("executes each operation in sequence successfully", (done) => {
 
-    let state = {
-      imageDir: "./test"
-    }
-
-    let operations = kitchenSink;
-
-    execute(...operations)(state).then((finalState) => {
+    execute(...kitchenSink)(state).then((finalState) => {
 
       const next = {
         "data": 8,
@@ -24,8 +22,9 @@ describe("execute", () => {
           1,
           2,
           3,
-          4,
-          {"result": "OCR mocked, results go here."},
+          4, {
+            "result": "OCR mocked, results go here."
+          },
           5,
           7
         ]
@@ -33,6 +32,23 @@ describe("execute", () => {
 
       expect(finalState).to.eql(next)
 
+    }).then(done).catch(done)
+
+  })
+
+  it("handles complex conditionals", (done) => {
+
+    execute(...conditionals)(state).then((finalState) => {
+
+      const next = {
+        "data": null,
+        "delay": 0,
+        "imageDir": "./test",
+        "references": []
+      }
+
+      expect(finalState).to.eql(next)
+      
     }).then(done).catch(done)
 
   })
