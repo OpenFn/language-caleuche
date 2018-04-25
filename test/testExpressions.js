@@ -1,21 +1,29 @@
 import {composeNextState} from 'language-common';
 import {
+  alterState,
   assertVisible,
-  click,
   chord,
+  click,
   conditional,
   driver,
   elementByCss,
   elementById,
   execute,
+  huntAndPeck,
   ocr,
   post,
   setDelay,
   type,
   url,
-  wait,
-  alterState
+  wait
 } from '../lib/Adaptor';
+
+const slowTyper = [
+  setDelay(500),
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  elementById("main-q"),
+  huntAndPeck("hello there")
+]
 
 const readText = [
   url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
@@ -152,4 +160,4 @@ const kitchenSink = [
   conditional(true, wait(20), null)
 ]
 
-export { kitchenSink, conditionals, readText };
+export { kitchenSink, conditionals, readText, slowTyper };

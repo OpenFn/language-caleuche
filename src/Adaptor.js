@@ -173,12 +173,32 @@ export function type(keys) {
   }
 }
 
+export function huntAndPeck(keys) {
+  return state => {
+
+    const array = keys.split('')
+    console.log("slowly hunting and pecking: " + parseKeys(state, array));
+
+    const operations = array.map(key => {
+      return type(key)
+    })
+
+    const start = Promise.resolve(state)
+
+    return operations.reduce((acc, operation) => {
+      return acc.then(operation);
+    }, start)
+
+  }
+}
+
 export function chord(keys) {
   return state => {
 
     console.log("chording: " + parseKeys(state, keys));
 
-    // return state.element.sendKeys(
+    // NOTE: `return state.element.sendKeys(...)` is another option here.
+    // Decided on sending to the driver as it does not requre an element.
     return state.driver.actions().sendKeys(
       state.Key.chord(
         parseKeys(state, keys)

@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import Adaptor from '../lib';
 const {execute} = Adaptor;
-import {kitchenSink, conditionals, readText} from './testExpressions.js';
+import {kitchenSink, conditionals, readText, slowTyper} from './testExpressions.js';
 
 describe("execute", () => {
 
@@ -66,6 +66,20 @@ describe("execute", () => {
 
       expect(finalState).to.eql(next)
 
+    }).then(done).catch(done)
+  })
+
+  it("can type slowly using huntAndPeck", (done) => {
+    execute(...slowTyper)(state).then((finalState) => {
+
+      const next = {
+        "data": null,
+        "delay": 500,
+        "imageDir": "./test",
+        "references": []
+      }
+
+      expect(finalState).to.eql(next)
     }).then(done).catch(done)
   })
 
