@@ -17,6 +17,18 @@ import {
   alterState
 } from '../lib/Adaptor';
 
+const readText = [
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  elementById("random-text-string"),
+  driver(state => {
+    return state.element.getText().then(function (text) {
+      console.log(text);
+      state.some_text = text
+      return state
+    })
+  })
+]
+
 const conditionals = [
   url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
   conditional(
@@ -140,4 +152,4 @@ const kitchenSink = [
   conditional(true, wait(20), null)
 ]
 
-export { kitchenSink, conditionals };
+export { kitchenSink, conditionals, readText };

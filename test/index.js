@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import Adaptor from '../lib';
 const {execute} = Adaptor;
-import {kitchenSink, conditionals} from './testExpressions.js';
+import {kitchenSink, conditionals, readText} from './testExpressions.js';
 
 describe("execute", () => {
 
@@ -48,9 +48,25 @@ describe("execute", () => {
       }
 
       expect(finalState).to.eql(next)
-      
+
     }).then(done).catch(done)
 
+  })
+
+  it("can read text from an element in a web page", (done) => {
+    execute(...readText)(state).then((finalState) => {
+
+      const next = {
+        "data": null,
+        "delay": 0,
+        "some_text": "Hello There World!",
+        "imageDir": "./test",
+        "references": []
+      }
+
+      expect(finalState).to.eql(next)
+
+    }).then(done).catch(done)
   })
 
 })
