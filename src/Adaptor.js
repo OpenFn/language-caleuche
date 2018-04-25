@@ -161,12 +161,24 @@ export function type(keys) {
 
     const array = (typeof keys == 'string' ? [keys] : keys)
     console.log("typing: " + parseKeys(state, array));
-
-    // return state.element.sendKeys(
     return state.driver.actions().sendKeys(
       parseKeys(state, array)
     )
     .perform()
+    .then(sleep(state.delay))
+    .then(() => { return state })
+
+  }
+}
+
+export function typeInElement(keys) {
+  return state => {
+
+    const array = (typeof keys == 'string' ? [keys] : keys)
+    console.log("typing: " + parseKeys(state, array));
+    return state.element.sendKeys(
+      parseKeys(state, array)
+    )
     .then(sleep(state.delay))
     .then(() => { return state })
 

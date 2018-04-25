@@ -14,9 +14,77 @@ import {
   post,
   setDelay,
   type,
+  typeInElement,
   url,
   wait
 } from '../lib/Adaptor';
+
+const typist = [
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  elementById("main-q"),
+  driver(state => {
+    return state.element.click().then(() => {
+      return state
+    })
+  }),
+  type("here is the root of the root and the bud of the bud"),
+  driver(state => {
+    return state.element.getAttribute("value").then(function (text) {
+      state.entered_text = text
+      return state
+    })
+  }),
+  driver(state => {
+    return state.element.getAttribute("value").then(function (text) {
+      state.entered_text = text
+      return state
+    })
+  }),
+  driver(state => {
+    return state.element.clear().then(() => {
+      return state
+    })
+  }),
+  type("1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+  driver(state => {
+    return state.element.getAttribute("value").then(function (text) {
+      state.chars = text
+      return state
+    })
+  }),
+  driver(state => {
+    return state.element.clear().then(() => {
+      return state
+    })
+  }),
+  typeInElement("and the sky of the sky of a tree called life"),
+  driver(state => {
+    return state.element.getAttribute("value").then(function (text) {
+      state.finally = text
+      return state
+    })
+  })
+]
+
+const sendKeyChecker = [
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  elementById("main-q"),
+  type("hi mom."),
+  driver(state => {
+    const text = "here is the deepest secret nobody knows"
+    return state.element.sendKeys(text).then(() => {
+      return state
+    })
+  }),
+  driver(state => {
+    return state.element.getAttribute("value").then(function (text) {
+      console.log(text);
+      state.entered_text = text
+      return state
+    })
+  }),
+  wait(2000)
+]
 
 const slowTyper = [
   setDelay(500),
@@ -160,4 +228,4 @@ const kitchenSink = [
   conditional(true, wait(20), null)
 ]
 
-export { kitchenSink, conditionals, readText, slowTyper };
+export { kitchenSink, conditionals, readText, slowTyper, sendKeyChecker, typist };

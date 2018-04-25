@@ -1,7 +1,8 @@
 import {expect} from 'chai';
 import Adaptor from '../lib';
 const {execute} = Adaptor;
-import {kitchenSink, conditionals, readText, slowTyper} from './testExpressions.js';
+import { kitchenSink, conditionals, readText, slowTyper, sendKeyChecker,
+  typist } from './testExpressions.js';
 
 describe("execute", () => {
 
@@ -80,6 +81,40 @@ describe("execute", () => {
       }
 
       expect(finalState).to.eql(next)
+    }).then(done).catch(done)
+  })
+
+  it("types properly with `state.element.sendKeys(...)`", (done) =>{
+    execute(...sendKeyChecker)(state).then((finalState) => {
+
+      const next = {
+        "data": null,
+        "delay": 0,
+        "entered_text": "here is the deepest secret nobody knows",
+        "imageDir": "./test",
+        "references": []
+      }
+
+      expect(finalState).to.eql(next)
+
+    }).then(done).catch(done)
+  })
+
+  it("types properly with `type(...)`", (done) =>{
+    execute(...typist)(state).then((finalState) => {
+
+      const next = {
+        "data": null,
+        "delay": 0,
+        "entered_text": "here is the root of the root and the bud of the bud",
+        "chars": "1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "finally": "and the sky of the sky of a tree called life",
+        "imageDir": "./test",
+        "references": []
+      }
+
+      expect(finalState).to.eql(next)
+
     }).then(done).catch(done)
   })
 

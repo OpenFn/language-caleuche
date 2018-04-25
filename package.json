@@ -1,6 +1,6 @@
 {
   "name": "language-caleuche",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Selenium, Chromedriver, OpenCV, and Google OCR packaged for web application automation.",
   "main": "lib/index.js",
   "scripts": {
