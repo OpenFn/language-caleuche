@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import Adaptor from '../lib';
 const {execute} = Adaptor;
 import { kitchenSink, conditionals, readText, slowTyper, sendKeyChecker,
-  typist } from './testExpressions.js';
+  typist, screenshot } from './testExpressions.js';
 
 describe("execute", () => {
 
@@ -109,6 +109,21 @@ describe("execute", () => {
         "entered_text": "here is the root of the root and the bud of the bud",
         "chars": "1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ",
         "finally": "and the sky of the sky of a tree called life",
+        "imageDir": "./test",
+        "references": []
+      }
+
+      expect(finalState).to.eql(next)
+
+    }).then(done).catch(done)
+  })
+
+  it("takes a screenshot", (done) =>{
+    execute(...screenshot)(state).then((finalState) => {
+
+      const next = {
+        "data": null,
+        "delay": 0,
         "imageDir": "./test",
         "references": []
       }

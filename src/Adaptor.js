@@ -353,6 +353,13 @@ export function ocr({ label, image, authKey, offsetX, offsetY, width, height, mo
   }
 };
 
+export function printScreen(output) {
+  return state => {
+    screenshot(state.driver, `tmp/${output}`)
+    return state;
+  }
+}
+
 export {
   field,
   fields,

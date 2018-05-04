@@ -16,8 +16,16 @@ import {
   type,
   typeInElement,
   url,
-  wait
+  wait,
+  printScreen,
 } from '../lib/Adaptor';
+
+let state = {};
+
+const screenshot = [
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  printScreen('my_test.png')
+]
 
 const typist = [
   url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
@@ -228,4 +236,5 @@ const kitchenSink = [
   conditional(true, wait(20), null)
 ]
 
-export { kitchenSink, conditionals, readText, slowTyper, sendKeyChecker, typist };
+export { kitchenSink, conditionals, readText, slowTyper, sendKeyChecker,
+  screenshot, typist };
