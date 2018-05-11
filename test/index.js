@@ -1,8 +1,17 @@
 import {expect} from 'chai';
 import Adaptor from '../lib';
 const {execute} = Adaptor;
-import { kitchenSink, conditionals, readText, slowTyper, sendKeyChecker,
-  typist, screenshot } from './testExpressions.js';
+import {
+  kitchenSink,
+  conditionals,
+  readText,
+  slowTyper,
+  sendKeyChecker,
+  typist,
+  screenshot,
+  stateLogical,
+  theAtSymbol,
+} from './testExpressions.js';
 
 describe("execute", () => {
 
@@ -37,12 +46,17 @@ describe("execute", () => {
 
   })
 
-  it("handles complex conditionals", (done) => {
+  it.only("handles complex conditionals", (done) => {
+
+    const state = {
+      "data": {"a": 1},
+      "imageDir": "./test"
+    }
 
     execute(...conditionals)(state).then((finalState) => {
 
       const next = {
-        "data": null,
+        "data": {"a": 1},
         "delay": 0,
         "imageDir": "./test",
         "references": []
@@ -125,6 +139,23 @@ describe("execute", () => {
         "data": null,
         "delay": 0,
         "imageDir": "./test",
+        "references": []
+      }
+
+      expect(finalState).to.eql(next)
+
+    }).then(done).catch(done)
+  })
+
+  it("can type an @ symbol", (done) =>{
+
+    execute(...theAtSymbol)(state).then((finalState) => {
+
+      const next = {
+        "data": null,
+        "delay": 0,
+        "imageDir": "./test",
+        "entered_text": "can we type the @ symbol?",
         "references": []
       }
 

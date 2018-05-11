@@ -18,6 +18,9 @@ import {
   url,
   wait,
   printScreen,
+  dataValue,
+  steps,
+  commonExecute,
 } from '../lib/Adaptor';
 
 let state = {};
@@ -115,15 +118,34 @@ const readText = [
 
 const conditionals = [
   url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  driver(state => {
+    if(state.data.a) {
+
+      const operations = [
+        driver(state => {
+          console.log("really in there!");
+          return state
+        }),
+        wait(20),
+        assertVisible("sample_text_needle.png"),
+      ]
+      
+      return commonExecute(...operations)(state)
+
+    } else {
+      console.log("falsy");
+      return state
+    }
+  }),
   conditional(
-    assertVisible("messi.jpg", 500),
+    assertVisible("messi.jpg", 200),
     driver(state => {
       console.log("when true.");
       return state;
     }),
     state => {
       console.log("when false.")
-      return wait(2000)(state)
+      return wait(100)(state)
       .then(state => {
         return assertVisible("sample_text_needle.png")(state)
       })
@@ -236,5 +258,42 @@ const kitchenSink = [
   conditional(true, wait(20), null)
 ]
 
-export { kitchenSink, conditionals, readText, slowTyper, sendKeyChecker,
-  screenshot, typist };
+const stateLogical = [
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  elementById("main-q"),
+  driver(state => {
+    if (state.data.a) {
+      console.log("truthy");
+      return click("single", "sample_text_needle.png", 2000)(state)
+    } else {
+      console.log("falsy");
+      return state
+    }
+  })
+]
+
+const theAtSymbol = [
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  elementById("main-q"),
+  typeInElement(""),
+  type("can we type the @ symbol?"),
+  driver(state => {
+    return state.element.getAttribute("value").then(function (text) {
+      console.log(text);
+      state.entered_text = text
+      return state
+    })
+  })
+]
+
+export {
+  kitchenSink,
+  conditionals,
+  readText,
+  slowTyper,
+  sendKeyChecker,
+  screenshot,
+  typist,
+  stateLogical,
+  theAtSymbol,
+};

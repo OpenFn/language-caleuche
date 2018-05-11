@@ -369,6 +369,7 @@ export {
   merge,
   dataPath,
   dataValue,
-  lastReferenceValue
+  lastReferenceValue,
+  execute as commonExecute,
 }
 from 'language-common';
