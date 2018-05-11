@@ -46,7 +46,7 @@ describe("execute", () => {
 
   })
 
-  it.only("handles complex conditionals", (done) => {
+  it("handles complex conditionals", (done) => {
 
     const state = {
       "data": {"a": 1},
