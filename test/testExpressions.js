@@ -23,7 +23,12 @@ import {
   commonExecute,
 } from '../lib/Adaptor';
 
-let state = {};
+let state = {
+  "data": {
+    "prefix": "here ",
+    "noKeyPresent": true
+  }
+};
 
 const screenshot = [
   url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
@@ -38,7 +43,9 @@ const typist = [
       return state
     })
   }),
-  type("here is the root of the root and the bud of the bud"),
+  type(state.data.noKeyPresent),
+  type(state.data.prefix),
+  type("is the root of the root and the bud of the bud"),
   driver(state => {
     return state.element.getAttribute("value").then(function (text) {
       state.entered_text = text
@@ -129,7 +136,7 @@ const conditionals = [
         wait(20),
         assertVisible("sample_text_needle.png"),
       ]
-      
+
       return commonExecute(...operations)(state)
 
     } else {

@@ -114,7 +114,16 @@ describe("execute", () => {
     }).then(done).catch(done)
   })
 
-  it("types properly with `type(...)`", (done) =>{
+  it.only("types properly with `type(...)`", (done) =>{
+
+    let state = {
+      imageDir: "./test",
+      data: {
+        "noKeyPresent": "fine",
+        "prefix": "here "
+      }
+    }
+
     execute(...typist)(state).then((finalState) => {
 
       const next = {
