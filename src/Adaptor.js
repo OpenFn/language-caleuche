@@ -30,8 +30,11 @@ export function execute(...operations) {
   .set('chromeOptions', {
     'args': [
       '--headless',
-      '--window-size=1080,1080',
-      '--no-gpu'
+      '--no-gpu',
+      '--window-size=1920,1080',
+      // '--profile-directory=Default',
+      // '--load-extension=/home/taylor/.config/google-chrome/Default/Extensions/cbkkbcmdlboombapidmoeolnmdacpkch/4.47.1.3_0',
+      // '--app-id=cbkkbcmdlboombapidmoeolnmdacpkch'
     ]
   })
   .set('acceptInsecureCerts', true)
@@ -58,6 +61,7 @@ export function execute(...operations) {
       cleanupState
     )({...initialState, ...state})
     .catch((e) => {
+      screenshot(driver, 'tmp/error.png')
       driver.quit();
       throw e;
     })
@@ -146,10 +150,30 @@ export function elementById(id, timeout) {
   }
 }
 
-export function elementByCss(id, timeout) {
+export function elementByCss(className, timeout) {
   return state => {
     return state.driver.wait(
-      until.elementLocated(By.css(id)),
+      until.elementLocated(By.css(className)),
+      timeout || 25 * 1000
+    )
+    .then((element) => { return { ...state, element } })
+  }
+}
+
+export function elementByXPath(id, timeout) {
+  return state => {
+    return state.driver.wait(
+      until.elementLocated(By.xpath(id)),
+      timeout || 25 * 1000
+    )
+    .then((element) => { return { ...state, element } })
+  }
+}
+
+export function elementByName(name, timeout) {
+  return state => {
+    return state.driver.wait(
+      until.elementLocated(By.name(name)),
       timeout || 25 * 1000
     )
     .then((element) => { return { ...state, element } })
@@ -223,10 +247,10 @@ export function chord(keys) {
   }
 }
 
-function searchArray(state, input, timeout) {
+function searchArray(state, input, timeout, confidence) {
   const imageArray = (typeof input == 'object' ? input : [input])
   return imageArray.map(img => {
-    return search(state, getPath(state, img), timeout)
+    return search(state, getPath(state, img), timeout, confidence)
   });
 }
 
@@ -243,10 +267,11 @@ function sleep(ms) {
   };
 }
 
-export function assertVisible(needle, timeout) {
+export function assertVisible(needle, timeout, confidence) {
   return state => {
+    console.log("assertVisible: " + confidence)
     return Promise.race(
-      searchArray(state, needle, timeout)
+      searchArray(state, needle, timeout, confidence)
     )
     .then(() => { return state })
   }
@@ -263,7 +288,7 @@ export function assertVisible(needle, timeout) {
  * @param {integer} timeout is the image to search for on the screen/canvas
  * @returns {<Operation>}
  */
-export function click(type, needle, timeout) {
+export function click(type, needle, timeout, confidence) {
   return state => {
 
     if (!needle) {
@@ -278,7 +303,7 @@ export function click(type, needle, timeout) {
     } else {
 
       return Promise.race(
-        searchArray(state, needle, timeout)
+        searchArray(state, needle, timeout, confidence)
       )
       .then(({ target, minMax }) => {
         offsetClick(state, target)
@@ -294,9 +319,7 @@ export function click(type, needle, timeout) {
   }
 }
 
-function search(state, image, timeout) {
-
-  console.log(`Searching for ${image}...`);
+function search(state, image, timeout, confidence) {
 
   const options = {
     retries: ( timeout ? (timeout*2) / 1000 : 10 ), // The maximum amount of times to retry the operation. Default is 10.
@@ -308,7 +331,7 @@ function search(state, image, timeout) {
 
   return promiseRetry(options, (retry, number) => {
     return state.driver.takeScreenshot().then((haystack, err) => {
-      return findInImage(base64_encode(image), haystack)
+      return findInImage(base64_encode(image), haystack, confidence)
     })
     .catch(retry)
   })

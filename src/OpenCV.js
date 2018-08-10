@@ -1,6 +1,6 @@
 import cv from 'opencv4nodejs';
 
-export function findInImage(waldo, scene) {
+export function findInImage(waldo, scene, confidence) {
 
     const needle = cv.imdecode(Buffer.from(waldo,'base64'));
     const haystack = cv.imdecode(Buffer.from(scene,'base64'));
@@ -28,10 +28,11 @@ export function findInImage(waldo, scene) {
       x: (Math.floor(minMax.maxLoc.x + needle.cols/2))
     };
 
-    if (minMax.maxVal > 0.990) {
+    if (minMax.maxVal > (confidence || 0.95)) {
       console.log(`Match Found: ${JSON.stringify(minMax.maxVal)} at ${JSON.stringify(target)}.`);
       return {target, minMax}
     } else {
+      // console.log("Potential match @" + minMax.maxVal + " confidence.");
       throw("No match found: " + JSON.stringify(minMax.maxVal))
     }
 
