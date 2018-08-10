@@ -25,11 +25,15 @@ export function offsetClick(state, target) {
 }
 
 export function parseKeys(state, keys) {
-  return keys.map((item) => {
-    if (item.startsWith('Key.')) {
-      return state.Key[item.substring(item.indexOf(".") +1 )]
-    } else {
-      return item
-    }
-  }).join('')
+  if (keys) {
+    return keys.map((item) => {
+      if (item.startsWith('Key.')) {
+        return state.Key[item.substring(item.indexOf(".") +1 )]
+      } else {
+        return item;
+      }
+    }).join('')
+  } else {
+    return '';
+  }
 }
