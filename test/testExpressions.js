@@ -24,9 +24,13 @@ import {
 } from '../lib/Adaptor';
 
 let state = {
-  "data": {
-    "prefix": "here ",
-    "noKeyPresent": true
+  data: {
+    "prefix": "here "
+  },
+  options: {
+    delay: 0,
+    confidence: 0.95,
+    retries: 10
   }
 };
 
@@ -145,7 +149,7 @@ const conditionals = [
     }
   }),
   conditional(
-    assertVisible("messi.jpg", 200),
+    assertVisible("messi.jpg", { timeout: 200 }),
     driver(state => {
       console.log("when true.");
       return state;
@@ -201,13 +205,13 @@ const kitchenSink = [
       return state;
     })
   ),
-  click(),
+  click('single'),
   (state) => {
     console.log(4);
     return composeNextState(state, 4)
   },
   assertVisible("sample_text_needle.png"),
-  click("single", "sample_text_needle.png", 2000),
+  click("single", "sample_text_needle.png", { timeout: 2000 }),
   ocr({
     label: 'result',
     image: 'sample_text_needle.png',
@@ -218,13 +222,13 @@ const kitchenSink = [
     height: 1,
     mock: true
   }),
-  click("single", ["sample_text_needle.png", "messi.jpg"], 2000),
+  click("single", ["sample_text_needle.png", "messi.jpg"], { timeout: 2000 }),
   (state) => {
     console.log(5);
     return composeNextState(state, 5)
   },
   conditional(
-    assertVisible("messi.jpg", 100),
+    assertVisible("messi.jpg", { timeout: 100 }),
     driver(state => {
       console.log("Found Messi.");
       return state;
@@ -271,7 +275,7 @@ const stateLogical = [
   driver(state => {
     if (state.data.a) {
       console.log("truthy");
-      return click("single", "sample_text_needle.png", 2000)(state)
+      return click("single", "sample_text_needle.png", { timeout: 2000 })(state)
     } else {
       console.log("falsy");
       return state

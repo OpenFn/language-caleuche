@@ -32,9 +32,6 @@ export function execute(...operations) {
       '--headless',
       '--no-gpu',
       '--window-size=1920,1080',
-      // '--profile-directory=Default',
-      // '--load-extension=/home/taylor/.config/google-chrome/Default/Extensions/cbkkbcmdlboombapidmoeolnmdacpkch/4.47.1.3_0',
-      // '--app-id=cbkkbcmdlboombapidmoeolnmdacpkch'
     ]
   })
   .set('acceptInsecureCerts', true)
@@ -47,7 +44,11 @@ export function execute(...operations) {
   const initialState = {
     references: [],
     data: null,
-    delay: 0,
+    options: {
+      delay: 0,
+      confidence: 0.95,
+      retries: 10,
+    },
     driver,
     By,
     Key,
@@ -189,7 +190,7 @@ export function type(keys) {
       parseKeys(state, array)
     )
     .perform()
-    .then(sleep(state.delay))
+    .then(sleep(state.options.delay))
     .then(() => { return state })
 
   }
@@ -203,7 +204,7 @@ export function typeInElement(keys) {
     return state.element.sendKeys(
       parseKeys(state, array)
     )
-    .then(sleep(state.delay))
+    .then(sleep(state.options.delay))
     .then(() => { return state })
 
   }
@@ -241,7 +242,7 @@ export function chord(keys) {
       )
     )
     .perform()
-    .then(sleep(state.delay))
+    .then(sleep(state.options.delay))
     .then(() => { return state })
 
   }
@@ -256,7 +257,21 @@ function searchArray(state, input, timeout, confidence) {
 
 export function setDelay(ms) {
   return state => {
-    state.delay = ms;
+    state.options.delay = ms;
+    return state;
+  }
+}
+
+export function setConfidence(float) {
+  return state => {
+    state.options.confidence = float;
+    return state;
+  }
+}
+
+export function pushOptions(obj) {
+  return state => {
+    state.options = { ...state.options, obj }
     return state;
   }
 }
@@ -267,9 +282,10 @@ function sleep(ms) {
   };
 }
 
-export function assertVisible(needle, timeout, confidence) {
+export function assertVisible(needle, options) {
   return state => {
-    console.log("assertVisible: " + confidence)
+    const { timeout, confidence } = options || {};
+    console.log(`Searching for: ${needle}`);
     return Promise.race(
       searchArray(state, needle, timeout, confidence)
     )
@@ -285,23 +301,21 @@ export function assertVisible(needle, timeout, confidence) {
  * @function
  * @param {string} type is either 'single' or 'double'
  * @param {string} needle is the image to search for on the screen/canvas
- * @param {integer} timeout is the image to search for on the screen/canvas
+ * @param {object} options contains the timeout and confidence, optionally
  * @returns {<Operation>}
  */
-export function click(type, needle, timeout, confidence) {
+export function click(type, needle, options) {
   return state => {
-
+    const { timeout, confidence } = options || {};
+    console.log(`Attempting to ${type} click on: ${needle}`);
     if (!needle) {
-
       return state.element.click()
       .then(() => {
         return ( type == 'double' && state.element.click() )
       })
-      .then(sleep(state.delay))
+      .then(sleep(state.options.delay))
       .then(() => { return state })
-
     } else {
-
       return Promise.race(
         searchArray(state, needle, timeout, confidence)
       )
@@ -312,17 +326,15 @@ export function click(type, needle, timeout, confidence) {
       .then((target) => {
         return ( type == 'double' && offsetClick(state, target) )
       })
-      .then(sleep(state.delay))
+      .then(sleep(state.options.delay))
       .then(() => { return state })
-
     }
   }
 }
 
 function search(state, image, timeout, confidence) {
-
   const options = {
-    retries: ( timeout ? (timeout*2) / 1000 : 10 ), // The maximum amount of times to retry the operation. Default is 10.
+    retries: ( timeout ? (timeout*2) / 1000 : state.options.retries ), // The maximum amount of times to retry the operation. Default is 10.
     factor: 2, // The exponential factor to use. Default is 2.
     minTimeout: 500, // The number of milliseconds before starting the first retry. Default is 1000.
     maxTimeout: 1000, // The maximum number of milliseconds between two retries. Default is Infinity.
@@ -331,7 +343,7 @@ function search(state, image, timeout, confidence) {
 
   return promiseRetry(options, (retry, number) => {
     return state.driver.takeScreenshot().then((haystack, err) => {
-      return findInImage(base64_encode(image), haystack, confidence)
+      return findInImage(base64_encode(image), haystack, confidence || state.options.confidence)
     })
     .catch(retry)
   })

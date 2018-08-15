@@ -16,7 +16,12 @@ import {
 describe("execute", () => {
 
   let state = {
-    imageDir: "./test"
+    imageDir: "./test",
+    options: {
+      delay: 0,
+      confidence: 0.95,
+      retries: 10
+    },
   }
 
   it("executes each operation in sequence successfully", (done) => {
@@ -25,7 +30,11 @@ describe("execute", () => {
 
       const next = {
         "data": 8,
-        "delay": 13,
+        options: {
+          delay: 13,
+          confidence: 0.95,
+          retries: 10
+        },
         "imageDir": "./test",
         "references": [
           null,
@@ -49,15 +58,26 @@ describe("execute", () => {
   it("handles complex conditionals", (done) => {
 
     const state = {
-      "data": {"a": 1},
-      "imageDir": "./test"
+      data: {
+        a: 1
+      },
+      imageDir: "./test",
+      options: {
+        delay: 0,
+        confidence: 0.95,
+        retries: 10
+      },
     }
 
     execute(...conditionals)(state).then((finalState) => {
 
       const next = {
         "data": {"a": 1},
-        "delay": 0,
+        options: {
+          delay: 0,
+          confidence: 0.95,
+          retries: 10
+        },
         "imageDir": "./test",
         "references": []
       }
@@ -72,11 +92,11 @@ describe("execute", () => {
     execute(...readText)(state).then((finalState) => {
 
       const next = {
-        "data": null,
-        "delay": 0,
-        "some_text": "Hello There World!",
-        "imageDir": "./test",
-        "references": []
+        references: [],
+        data: null,
+        options: { delay: 13, confidence: 0.95, retries: 10 },
+        imageDir: './test',
+        some_text: 'Hello There World!'
       }
 
       expect(finalState).to.eql(next)
@@ -89,7 +109,11 @@ describe("execute", () => {
 
       const next = {
         "data": null,
-        "delay": 500,
+        options: {
+          delay: 500,
+          confidence: 0.95,
+          retries: 10
+        },
         "imageDir": "./test",
         "references": []
       }
@@ -103,7 +127,11 @@ describe("execute", () => {
 
       const next = {
         "data": null,
-        "delay": 0,
+        options: {
+          delay: 500,
+          confidence: 0.95,
+          retries: 10
+        },
         "entered_text": "here is the deepest secret nobody knows",
         "imageDir": "./test",
         "references": []
@@ -114,21 +142,26 @@ describe("execute", () => {
     }).then(done).catch(done)
   })
 
-  it.only("types properly with `type(...)`", (done) =>{
+  it("types properly with `type(...)`", (done) =>{
 
     let state = {
       imageDir: "./test",
       data: {
-        "noKeyPresent": "fine",
-        "prefix": "here "
+        prefix: "here "
       }
     }
 
     execute(...typist)(state).then((finalState) => {
 
       const next = {
-        "data": null,
-        "delay": 0,
+        "data": {
+          "prefix": "here "
+        },
+        options: {
+          delay: 0,
+          confidence: 0.95,
+          retries: 10
+        },
         "entered_text": "here is the root of the root and the bud of the bud",
         "chars": "1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ",
         "finally": "and the sky of the sky of a tree called life",
@@ -146,7 +179,11 @@ describe("execute", () => {
 
       const next = {
         "data": null,
-        "delay": 0,
+        options: {
+          delay: 500,
+          confidence: 0.95,
+          retries: 10
+        },
         "imageDir": "./test",
         "references": []
       }
@@ -162,7 +199,11 @@ describe("execute", () => {
 
       const next = {
         "data": null,
-        "delay": 0,
+        options: {
+          delay: 500,
+          confidence: 0.95,
+          retries: 10
+        },
         "imageDir": "./test",
         "entered_text": "can we type the @ symbol?",
         "references": []
