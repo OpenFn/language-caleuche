@@ -32,6 +32,7 @@ export function execute(...operations) {
       '--headless',
       '--no-gpu',
       '--window-size=1920,1080',
+      '--lang=es',
     ]
   })
   .set('acceptInsecureCerts', true)
@@ -185,7 +186,7 @@ export function type(keys) {
   return state => {
 
     const array = (typeof keys == 'string' ? [keys] : keys)
-    console.log("typing: " + parseKeys(state, array));
+    console.log("Typing: " + parseKeys(state, array));
     return state.driver.actions().sendKeys(
       parseKeys(state, array)
     )
@@ -198,9 +199,8 @@ export function type(keys) {
 
 export function typeInElement(keys) {
   return state => {
-
     const array = (typeof keys == 'string' ? [keys] : keys)
-    console.log("typing: " + parseKeys(state, array));
+    console.log("Typing: " + parseKeys(state, array));
     return state.element.sendKeys(
       parseKeys(state, array)
     )
@@ -210,13 +210,21 @@ export function typeInElement(keys) {
   }
 }
 
-export function huntAndPeck(keys) {
+function shiftCase(key) {
+  if (isNaN(key) && key.toUpperCase() === key) {
+    return chord(['Key.SHIFT', key]);
+  }
+  return type(key);
+}
+
+export function huntAndPeck(keys, options) {
   return state => {
-
     const array = keys.split('')
-    console.log("slowly hunting and pecking: " + parseKeys(state, array));
-
+    console.log('Sending each character to Selenium individually: ' + parseKeys(state, array));
     const operations = array.map(key => {
+      if (options.manualCase) {
+        return shiftCase(key)
+      }
       return type(key)
     })
 
@@ -232,7 +240,7 @@ export function huntAndPeck(keys) {
 export function chord(keys) {
   return state => {
 
-    console.log("chording: " + parseKeys(state, keys));
+    console.log('Chording: ' + parseKeys(state, keys));
 
     // NOTE: `return state.element.sendKeys(...)` is another option here.
     // Decided on sending to the driver as it does not requre an element.
@@ -271,7 +279,7 @@ export function setConfidence(float) {
 
 export function pushOptions(obj) {
   return state => {
-    state.options = { ...state.options, obj }
+    state.options = { ...state.options, ...obj }
     return state;
   }
 }

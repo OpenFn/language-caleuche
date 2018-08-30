@@ -1,6 +1,6 @@
 {
   "name": "language-caleuche",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Selenium, Chromedriver, OpenCV, and Google OCR packaged for web application automation.",
   "main": "lib/index.js",
   "scripts": {
@@ -14,10 +14,10 @@
     "lib/"
   ],
   "dependencies": {
-    "chromedriver": "^2.37.0",
+    "chromedriver": "2.41.0",
     "language-common": "github:openfn/language-common#v0.3.0",
-    "promise-retry": "^1.1.1",
-    "request": "^2.81.0",
+    "promise-retry": "1.1.1",
+    "request": "2.81.0",
     "selenium-webdriver": "3.6.0"
   },
   "devDependencies": {

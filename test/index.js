@@ -11,6 +11,7 @@ import {
   screenshot,
   stateLogical,
   theAtSymbol,
+  capitalization,
 } from './testExpressions.js';
 
 describe("execute", () => {
@@ -206,6 +207,27 @@ describe("execute", () => {
         },
         "imageDir": "./test",
         "entered_text": "can we type the @ symbol?",
+        "references": []
+      }
+
+      expect(finalState).to.eql(next)
+
+    }).then(done).catch(done)
+  })
+
+  it("respects the input CASE of letters", (done) =>{
+
+    execute(...capitalization)(state).then((finalState) => {
+
+      const next = {
+        "data": null,
+        options: {
+          delay: 500,
+          confidence: 0.95,
+          retries: 10
+        },
+        "imageDir": "./test",
+        "entered_text": "What if Karl uses Proper Case?",
         "references": []
       }
 

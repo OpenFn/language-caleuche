@@ -297,6 +297,20 @@ const theAtSymbol = [
   })
 ]
 
+const capitalization = [
+  url("file:///home/taylor/language-packages/language-caleuche/test/sample_page.html"),
+  elementById("main-q"),
+  typeInElement("What if Karl uses Proper Case?"),
+  // type("What if Karl uses Proper Case?"),
+  driver(state => {
+    return state.element.getAttribute("value").then(function (text) {
+      console.log(text);
+      state.entered_text = text
+      return state
+    })
+  })
+]
+
 export {
   kitchenSink,
   conditionals,
@@ -307,4 +321,5 @@ export {
   typist,
   stateLogical,
   theAtSymbol,
+  capitalization,
 };
